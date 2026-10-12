@@ -1,0 +1,711 @@
+:root {
+  --sidebar-width: 264px;
+  --sidebar-ink: #282943;
+  --sidebar-muted: #7c8197;
+  --sidebar-line: rgba(99, 96, 165, 0.14);
+  --sidebar-gradient: linear-gradient(
+    125deg,
+    #514acb 0%,
+    #6654d6 54%,
+    #8059dc 100%
+  );
+  --sidebar-soft-gradient: linear-gradient(
+    110deg,
+    rgba(94, 88, 219, 0.13),
+    rgba(132, 96, 221, 0.075)
+  );
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.shared-sidebar {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  bottom: 0;
+  left: 0;
+
+  display: flex;
+
+  width: var(--sidebar-width);
+  height: 100vh;
+
+  flex: 0 0 var(--sidebar-width);
+  flex-direction: column;
+  justify-content: flex-start;
+
+  overflow: hidden;
+  overscroll-behavior: contain;
+
+  padding: 0;
+  margin: 0;
+
+  border-right: 1px solid var(--sidebar-line);
+
+  background: rgba(255, 255, 255, 0.96);
+
+  box-shadow: none;
+
+  backdrop-filter: blur(16px);
+
+  color: var(--sidebar-ink);
+
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease,
+    width 0.3s ease;
+}
+
+/* =========================================================
+   SIDEBAR SCROLLBAR
+   ========================================================= */
+
+.shared-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.shared-sidebar::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  background: rgba(97, 90, 198, 0.22);
+}
+
+/* =========================================================
+   SMARTMARK BRAND
+   ========================================================= */
+
+.shared-sidebar-brand {
+  display: flex;
+
+  width: 100%;
+  flex: 0 0 auto;
+
+  align-items: center;
+  justify-content: flex-start;
+
+  gap: 12px;
+
+  margin: 0;
+  padding: 22px 14px 20px;
+
+  border: 0;
+
+  background: inherit;
+
+  backdrop-filter: inherit;
+
+  color: inherit;
+
+  cursor: pointer;
+
+  font: inherit;
+
+  text-align: left;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.shared-sidebar-brand:hover {
+  background: rgba(94, 88, 219, 0.06);
+}
+
+.shared-sidebar-brand:active {
+  transform: scale(0.98);
+}
+
+.shared-sidebar-brand:focus-visible {
+  outline: 3px solid rgba(91, 84, 216, 0.24);
+  outline-offset: -3px;
+}
+
+/* =========================================================
+   BRAND LOGO
+   ========================================================= */
+
+.shared-brand-logo {
+  position: relative;
+
+  display: grid;
+
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  place-items: center;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+
+  background: var(--sidebar-gradient);
+
+  box-shadow: 0 8px 18px rgba(91, 82, 205, 0.24);
+
+  color: #fff;
+
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.shared-brand-logo::after {
+  position: absolute;
+
+  top: -16px;
+  right: -16px;
+
+  width: 38px;
+  height: 38px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.16);
+
+  content: "";
+}
+
+.shared-brand-logo > span {
+  position: absolute;
+
+  top: 3px;
+  right: 5px;
+
+  color: rgba(255, 255, 255, 0.9);
+
+  font-size: 12px;
+
+  line-height: 1;
+}
+
+/* =========================================================
+   BRAND TEXT
+   ========================================================= */
+
+.shared-brand-copy h2 {
+  margin: 0;
+
+  background: var(--sidebar-gradient);
+  background-clip: text;
+
+  color: transparent;
+
+  font-size: 22px;
+  font-weight: 750;
+}
+
+.shared-brand-copy span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #85899f;
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   SIDEBAR NAVIGATION
+   ========================================================= */
+
+.shared-sidebar-nav {
+  display: flex;
+
+  min-height: 0;
+
+  flex: 1 1 auto;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  margin-top: 4px;
+
+  overflow-y: auto;
+
+  overscroll-behavior: contain;
+}
+
+/* =========================================================
+   MENU TITLE
+   ========================================================= */
+
+.shared-sidebar-title {
+  margin: 0 0 11px;
+
+  padding: 0 12px;
+
+  color: #9699ac;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.15px;
+}
+
+/* =========================================================
+   MENU ITEMS
+   ========================================================= */
+
+#root .shared-sidebar .shared-menu-item {
+  display: flex;
+
+  width: calc(100% - 8px);
+
+  min-height: 56px;
+
+  align-items: center;
+
+  gap: 14px;
+
+  margin: 2px 4px;
+
+  padding: 15px 16px;
+
+  border: 1px solid transparent;
+
+  border-radius: 12px;
+
+  background: transparent;
+
+  color: #666b82;
+
+  cursor: pointer;
+
+  font-family: "Times New Roman", Times, serif;
+
+  font-size: 20px;
+
+  font-weight: 600;
+
+  line-height: 1.15;
+
+  text-align: left;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+#root .shared-sidebar .shared-menu-item:hover {
+  border-color: rgba(100, 94, 219, 0.1);
+
+  background: linear-gradient(
+    110deg,
+    rgba(94, 88, 219, 0.09),
+    rgba(132, 96, 221, 0.055)
+  );
+
+  color: #514fc8;
+}
+
+#root .shared-sidebar .shared-menu-item.active {
+  background: var(--sidebar-soft-gradient);
+
+  box-shadow: inset 3px 0 0 #615bdd;
+
+  color: #4f4dc6;
+
+  font-weight: 650;
+}
+
+/* =========================================================
+   MENU ICON
+   ========================================================= */
+
+.shared-menu-icon {
+  display: flex;
+
+  width: 26px;
+
+  flex: 0 0 26px;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 21px;
+}
+
+/* =========================================================
+   SIDEBAR BOTTOM
+   ========================================================= */
+
+.shared-sidebar-bottom {
+  display: flex;
+
+  flex: 0 0 auto;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  margin-top: 16px;
+
+  padding: 12px 0 0;
+
+  border-top: 1px solid var(--sidebar-line);
+}
+
+.shared-sidebar-bottom .shared-menu-item {
+  width: calc(100% - 8px);
+
+  min-height: 56px;
+
+  margin: 2px 4px;
+
+  padding: 14px 16px;
+
+  font-size: 20px;
+}
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+.shared-menu-item.shared-logout {
+  margin-top: 0;
+}
+
+.shared-menu-item.shared-logout:hover {
+  border-color: rgba(213, 79, 109, 0.08);
+
+  background: rgba(213, 79, 109, 0.07);
+
+  color: #c34d68;
+}
+
+/* =========================================================
+   FOCUS
+   ========================================================= */
+
+.shared-sidebar button:focus-visible {
+  outline: 3px solid rgba(91, 84, 216, 0.24);
+
+  outline-offset: 2px;
+}
+
+#root .profile-settings-trigger {
+  border: 0;
+
+  background: transparent;
+
+  color: inherit;
+
+  cursor: pointer;
+
+  font: inherit;
+
+  text-align: left;
+}
+
+#root .profile-settings-trigger:focus-visible {
+  outline: 3px solid rgba(91, 84, 216, 0.24);
+
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   NORMAL CONTENT POSITION
+   ========================================================= */
+
+.dashboard-container .shared-sidebar ~ .dashboard-main,
+.saved-page .shared-sidebar ~ .saved-main,
+.collections-container .shared-sidebar ~ .collections-main,
+.favorites-container .shared-sidebar ~ .favorites-main,
+.recent-container .shared-sidebar ~ .recent-main,
+.notes-container .shared-sidebar ~ .notes-main,
+.settings-container .shared-sidebar ~ .settings-main,
+.tags-page .shared-sidebar ~ .tags-main {
+  width: calc(100% - var(--sidebar-width));
+
+  margin-left: var(--sidebar-width);
+
+  transition:
+    width 0.3s ease,
+    margin-left 0.3s ease;
+}
+
+/* =========================================================
+   SIDEBAR CLOSED
+   ========================================================= */
+
+.shared-sidebar.sidebar-closed {
+  transform: translateX(-100%);
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   CONTENT WHEN SIDEBAR IS CLOSED
+   ========================================================= */
+
+.dashboard-container .dashboard-main.sidebar-collapsed,
+.saved-page .saved-main.sidebar-collapsed,
+.collections-container .collections-main.sidebar-collapsed,
+.favorites-container .favorites-main.sidebar-collapsed,
+.recent-container .recent-main.sidebar-collapsed,
+.notes-container .notes-main.sidebar-collapsed,
+.settings-container .settings-main.sidebar-collapsed,
+.tags-page .tags-main.sidebar-collapsed {
+  width: 100%;
+
+  margin-left: 0;
+
+  transition:
+    width 0.3s ease,
+    margin-left 0.3s ease;
+}
+
+/* =========================================================
+   SIDEBAR OPEN CONTENT
+   ========================================================= */
+
+.dashboard-container .dashboard-main.sidebar-expanded,
+.saved-page .saved-main.sidebar-expanded,
+.collections-container .collections-main.sidebar-expanded,
+.favorites-container .favorites-main.sidebar-expanded,
+.recent-container .recent-main.sidebar-expanded,
+.notes-container .notes-main.sidebar-expanded,
+.settings-container .settings-main.sidebar-expanded,
+.tags-page .tags-main.sidebar-expanded {
+  width: calc(100% - var(--sidebar-width));
+
+  margin-left: var(--sidebar-width);
+
+  transition:
+    width 0.3s ease,
+    margin-left 0.3s ease;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+  :root {
+    --sidebar-width: 232px;
+  }
+}
+
+/* =========================================================
+   SMALL TABLET
+   ========================================================= */
+
+@media (max-width: 800px) {
+  :root {
+    --sidebar-width: 74px;
+  }
+
+  .shared-sidebar {
+    align-items: center;
+
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .shared-sidebar-brand {
+    justify-content: center;
+
+    padding: 16px 0 14px;
+  }
+
+  .shared-brand-copy,
+  .shared-sidebar-title,
+  .shared-menu-label {
+    display: none;
+  }
+
+  #root .shared-sidebar .shared-menu-item {
+    justify-content: center;
+
+    padding: 9px 5px;
+  }
+
+  .shared-menu-icon {
+    width: auto;
+
+    flex-basis: auto;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  :root {
+    --sidebar-width: 60px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .shared-sidebar *,
+  .shared-sidebar *::before,
+  .shared-sidebar *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   PAGE HEADERS
+   ========================================================= */
+
+#root :is(
+  .dashboard-header,
+  .saved-header,
+  .collections-header,
+  .favorites-header,
+  .recent-header,
+  .notes-header,
+  .settings-header,
+  .tags-topbar
+) {
+  height: 96px;
+
+  min-height: 96px;
+}
+
+/* =========================================================
+   SEARCH BOXES
+   ========================================================= */
+
+#root :is(
+  .header-search,
+  .saved-search,
+  .favorites-header-search,
+  .recent-header-search,
+  .notes-header-search,
+  .settings-container .header-search,
+  .tags-global-search,
+  .help-search
+) {
+  height: 50px;
+
+  min-height: 50px;
+}
+
+#root :is(
+  .header-search,
+  .saved-search,
+  .favorites-header-search,
+  .recent-header-search,
+  .notes-header-search,
+  .settings-container .header-search,
+  .tags-global-search,
+  .help-search
+) input {
+  font-size: 16px !important;
+}
+
+/* =========================================================
+   SEARCH ICON
+   ========================================================= */
+
+#root :is(
+  .header-search > span,
+  .saved-search > span:first-child,
+  .favorites-header-search > span,
+  .recent-header-search > span,
+  .notes-header-search > span,
+  .tags-global-search > span:first-child,
+  .help-search > span
+) {
+  font-size: 27px;
+}
+
+/* =========================================================
+   HEADER BUTTONS
+   ========================================================= */
+
+#root :is(
+  .header-actions .icon-button,
+  .settings-container .icon-button,
+  .smartmark-notifications-trigger,
+  .app-theme-toggle,
+  .notification-button,
+  .favorites-notification-btn,
+  .recent-notification-btn,
+  .notes-notification-btn
+) {
+  width: 44px;
+
+  height: 44px;
+
+  font-size: 24px;
+}
+
+/* =========================================================
+   HEADER PROFILE
+   ========================================================= */
+
+#root :is(
+  .header-profile,
+  .saved-header-profile,
+  .favorites-header-profile,
+  .recent-header-profile,
+  .notes-header-profile,
+  .tags-topbar-profile
+) :is(strong, small) {
+  font-size: 15px;
+}
+
+#root :is(
+  .header-profile,
+  .saved-header-profile,
+  .favorites-header-profile,
+  .recent-header-profile,
+  .notes-header-profile,
+  .tags-topbar-profile
+) :is(div > span, small) {
+  font-size: 12px;
+}
+
+/* =========================================================
+   PROFILE AVATAR
+   ========================================================= */
+
+#root :is(
+  .profile-avatar.small,
+  .saved-avatar.small,
+  .favorites-profile-avatar.small,
+  .recent-profile-avatar.small,
+  .notes-profile-avatar.small,
+  .tags-topbar-avatar
+) {
+  width: 40px;
+
+  height: 40px;
+}
+
+/* =========================================================
+   MOBILE HEADER
+   ========================================================= */
+
+@media (max-width: 600px) {
+  #root :is(
+    .dashboard-header,
+    .saved-header,
+    .collections-header,
+    .favorites-header,
+    .recent-header,
+    .notes-header,
+    .settings-header,
+    .tags-topbar
+  ) {
+    height: 84px;
+
+    min-height: 84px;
+  }
+}
