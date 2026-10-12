@@ -1,0 +1,96 @@
+.semantic-search {
+  position: relative;
+  z-index: 20;
+  flex: 0 0 auto;
+}
+
+.semantic-search-toggle {
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid rgba(91, 84, 216, 0.22);
+  border-radius: 7px;
+  background: #f6f4ff;
+  color: #5752c9;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12.1px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.semantic-search-toggle:hover,
+.semantic-search-toggle.active {
+  border-color: rgba(91, 84, 216, 0.48);
+  background: #eeebff;
+}
+
+.semantic-search-panel {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 1002;
+  width: min(360px, 80vw);
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid rgba(98, 96, 164, 0.17);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(40, 39, 91, 0.16);
+  color: #777c93;
+  font-size: 13.2px;
+}
+
+.semantic-search-panel > p {
+  margin: 4px 2px;
+  line-height: 1.5;
+}
+
+.semantic-search-panel .semantic-search-error {
+  color: #b33f5a;
+}
+
+.semantic-search-panel ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.semantic-search-panel li a {
+  display: grid;
+  gap: 4px;
+  padding: 9px;
+  border-radius: 8px;
+  color: #303149;
+  text-decoration: none;
+}
+
+.semantic-search-panel li a:hover {
+  background: #f6f4ff;
+}
+
+.semantic-search-panel li strong {
+  overflow: hidden;
+  color: #514acb;
+  font-size: 13.2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.semantic-search-panel li span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #7c8197;
+  font-size: 12.1px;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.semantic-search-toggle:focus-visible,
+.semantic-search-panel a:focus-visible {
+  outline: 3px solid rgba(91, 84, 216, 0.24);
+  outline-offset: 2px;
+}
