@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "SmartMark",
+  "version": "1.0.0",
+  "description": "Save and organize useful resources with SmartMark.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:5173/*",
+    "https://stay-affects-registrar-cheap.trycloudflare.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
