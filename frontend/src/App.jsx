@@ -1,4 +1,12 @@
 import { useEffect, useState } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+
 import LoginPage from "./LoginPage";
 import SignUpPage from "./SignUpPage";
 import Dashboard from "./Dashboard";
@@ -11,25 +19,15 @@ import Settings from "./Settings";
 import ForgotPasswordPage from "./ForgotPassword";
 import Tags from "./Tags";
 import HelpSupport from "./HelpSupport";
+import SemanticSearchPage from "./SemanticSearchPage";
 import { ThemeContext } from "./ThemeToggle";
 
-function App() {
-  const [page, setPage] = useState("login");
-
-  /* =========================================================
-     SIDEBAR OPEN / CLOSE
-     ========================================================= */
+function AppContent() {
+  const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const toggleSidebar = () => {
-    setSidebarOpen((previous) => !previous);
-  };
-
-  /* =========================================================
-     DARK MODE
-     ========================================================= */
-
+  // DARK MODE
   const [darkMode, setDarkMode] = useState(() => {
     try {
       const savedTheme = window.localStorage.getItem("smartmark-theme");
@@ -48,24 +46,15 @@ function App() {
     }
   });
 
-  /* =========================================================
-     APPLY DARK MODE
-     ========================================================= */
-
   useEffect(() => {
-    document.documentElement.dataset.theme = darkMode
-      ? "dark"
-      : "light";
+    document.documentElement.dataset.theme = darkMode ? "dark" : "light";
   }, [darkMode]);
 
-  /* =========================================================
-     EXPIRED SESSION
-     ========================================================= */
-
+  // EXPIRED SESSION
   useEffect(() => {
     const handleExpiredSession = () => {
-      setPage("login");
       setSidebarOpen(true);
+      navigate("/login");
     };
 
     window.addEventListener(
@@ -79,12 +68,9 @@ function App() {
         handleExpiredSession
       );
     };
-  }, []);
+  }, [navigate]);
 
-  /* =========================================================
-     TOGGLE DARK MODE
-     ========================================================= */
-
+  // TOGGLE DARK MODE
   const toggleDarkMode = () => {
     const nextDarkMode = !darkMode;
 
@@ -96,210 +82,146 @@ function App() {
         nextDarkMode ? "dark" : "light"
       );
     } catch {
-      // The theme still changes for this session
-      // if storage is unavailable.
+      // Dark mode still works for this session.
     }
   };
 
-  /* =========================================================
-     LOGOUT
-     ========================================================= */
-
+  // LOGOUT
   const handleLogout = () => {
     try {
       window.localStorage.removeItem("smartmark-access-token");
     } catch {
-      // Return to login even when browser storage is unavailable.
+      // Continue to login.
     }
 
     setSidebarOpen(true);
-    setPage("login");
+    navigate("/login");
   };
 
-  /* =========================================================
-     COMMON SIDEBAR PROPS
-     ========================================================= */
-
+  // SIDEBAR NAVIGATION
   const sidebarProps = {
-    onDashboard: () => {
-      setPage("dashboard");
-    },
-
-    onSavedResources: () => {
-      setPage("saved");
-    },
-
-    onCollections: () => {
-      setPage("collections");
-    },
-
-    onTags: () => {
-      setPage("tags");
-    },
-
-    onNotes: () => {
-      setPage("notes");
-    },
-
-    onFavorites: () => {
-      setPage("favorites");
-    },
-
-    onRecent: () => {
-      setPage("recent");
-    },
-
-    onSettings: () => {
-      setPage("settings");
-    },
-
-    onHelpSupport: () => {
-      setPage("help");
-    },
-
+    onDashboard: () => navigate("/dashboard"),
+    onSavedResources: () => navigate("/saved-resources"),
+    onCollections: () => navigate("/collections"),
+    onTags: () => navigate("/tags"),
+    onNotes: () => navigate("/notes"),
+    onFavorites: () => navigate("/favorites"),
+    onRecent: () => navigate("/recent"),
+    onSemanticSearch: () => {
+  console.log("Semantic Search clicked");
+  navigate("/semantic-search");
+},
+    onSettings: () => navigate("/settings"),
+    onHelpSupport: () => navigate("/help"),
     onLogout: handleLogout,
-
-    /* NEW */
-    sidebarOpen: sidebarOpen,
-    onToggleSidebar: toggleSidebar,
+    sidebarOpen,
+    onToggleSidebar: () => {
+      setSidebarOpen((previous) => !previous);
+    },
   };
-
-  /* =========================================================
-     PAGE
-     ========================================================= */
 
   return (
-    <ThemeContext.Provider
-      value={{
-        darkMode,
-        toggleDarkMode,
-      }}
-    >
-      {/* =====================================================
-          LOGIN PAGE
-          ===================================================== */}
-
-      {page === "login" && (
-        <LoginPage
-          onSignUp={() => setPage("signup")}
-          onLogin={() => {
-            setSidebarOpen(true);
-            setPage("dashboard");
-          }}
-          onForgotPassword={() => setPage("forgot")}
+    <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
+      <Routes>
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
         />
-      )}
 
-      {/* =====================================================
-          SIGNUP PAGE
-          ===================================================== */}
-
-      {page === "signup" && (
-        <SignUpPage
-          onLogin={() => setPage("login")}
+        <Route
+          path="/login"
+          element={
+            <LoginPage
+              onSignUp={() => navigate("/signup")}
+              onLogin={() => {
+                setSidebarOpen(true);
+                navigate("/dashboard");
+              }}
+              onForgotPassword={() => navigate("/forgot-password")}
+            />
+          }
         />
-      )}
 
-      {/* =====================================================
-          DASHBOARD
-          ===================================================== */}
-
-      {page === "dashboard" && (
-        <Dashboard
-          {...sidebarProps}
+        <Route
+          path="/signup"
+          element={
+            <SignUpPage onLogin={() => navigate("/login")} />
+          }
         />
-      )}
 
-      {/* =====================================================
-          SAVED RESOURCES
-          ===================================================== */}
-
-      {page === "saved" && (
-        <SavedResources
-          {...sidebarProps}
+        <Route
+          path="/forgot-password"
+          element={
+            <ForgotPasswordPage
+              onBackToLogin={() => navigate("/login")}
+            />
+          }
         />
-      )}
 
-      {/* =====================================================
-          COLLECTIONS
-          ===================================================== */}
-
-      {page === "collections" && (
-        <Collections
-          {...sidebarProps}
+        <Route
+          path="/dashboard"
+          element={<Dashboard {...sidebarProps} />}
         />
-      )}
 
-      {/* =====================================================
-          FAVORITES
-          ===================================================== */}
-
-      {page === "favorites" && (
-        <Favorites
-          {...sidebarProps}
+        <Route
+          path="/saved-resources"
+          element={<SavedResources {...sidebarProps} />}
         />
-      )}
 
-      {/* =====================================================
-          RECENT
-          ===================================================== */}
-
-      {page === "recent" && (
-        <Recent
-          {...sidebarProps}
+        <Route
+          path="/collections"
+          element={<Collections {...sidebarProps} />}
         />
-      )}
 
-      {/* =====================================================
-          TAGS
-          ===================================================== */}
-
-      {page === "tags" && (
-        <Tags
-          {...sidebarProps}
+        <Route
+          path="/favorites"
+          element={<Favorites {...sidebarProps} />}
         />
-      )}
 
-      {/* =====================================================
-          NOTES
-          ===================================================== */}
-
-      {page === "notes" && (
-        <Notes
-          {...sidebarProps}
+        <Route
+          path="/recent"
+          element={<Recent {...sidebarProps} />}
         />
-      )}
 
-      {/* =====================================================
-          SETTINGS
-          ===================================================== */}
-
-      {page === "settings" && (
-        <Settings
-          {...sidebarProps}
+        <Route
+          path="/notes"
+          element={<Notes {...sidebarProps} />}
         />
-      )}
 
-      {/* =====================================================
-          FORGOT PASSWORD
-          ===================================================== */}
-
-      {page === "forgot" && (
-        <ForgotPasswordPage
-          onBackToLogin={() => setPage("login")}
+        <Route
+          path="/tags"
+          element={<Tags {...sidebarProps} />}
         />
-      )}
 
-      {/* =====================================================
-          HELP & SUPPORT
-          ===================================================== */}
-
-      {page === "help" && (
-        <HelpSupport
-          {...sidebarProps}
+        <Route
+          path="/semantic-search"
+          element={<SemanticSearchPage {...sidebarProps} />}
         />
-      )}
+
+        <Route
+          path="/settings"
+          element={<Settings {...sidebarProps} />}
+        />
+
+        <Route
+          path="/help"
+          element={<HelpSupport {...sidebarProps} />}
+        />
+
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
+      </Routes>
     </ThemeContext.Provider>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 

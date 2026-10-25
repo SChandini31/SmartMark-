@@ -3,7 +3,6 @@ import "./Recent.css";
 
 import Sidebar from "./Sidebar";
 import ThemeToggle from "./ThemeToggle";
-import SemanticSearch from "./SemanticSearch";
 import Notifications from "./Notifications";
 import { apiRequest } from "./authApi";
 
@@ -235,7 +234,6 @@ function Recent({
           {/* Page heading */}
           <div className="recent-page-heading">
             <div>
-              <p className="recent-page-label">ACTIVITY</p>
 
               <h1>Recent</h1>
 
@@ -310,19 +308,16 @@ function Recent({
           {/* Search and toolbar */}
           <div className="recent-toolbar">
             <div className="recent-search-box">
-              <span>⌕</span>
+  <span>⌕</span>
 
-              <input
-                type="text"
-                placeholder="Search recent activity..."
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                aria-label="Search recent activity"
-              />
-
-              <SemanticSearch query={searchTerm} />
-            </div>
-
+  <input
+    type="text"
+    placeholder="Search recent activity..."
+    value={searchTerm}
+    onChange={(event) => setSearchTerm(event.target.value)}
+    aria-label="Search recent activity"
+  />
+</div>
             <button
               className="recent-filter-btn"
               type="button"

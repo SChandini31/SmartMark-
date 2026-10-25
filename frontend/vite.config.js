@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://stay-affects-registrar-cheap.trycloudflare.com',
+        target: 'https://guitar-except-divorce-mem.trycloudflare.com',
         changeOrigin: true,
         secure: true,
       },

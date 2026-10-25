@@ -7,7 +7,7 @@ const menuItems = [
   { page: "tags", label: "Tags", icon: "🏷" },
   { page: "notes", label: "Notes", icon: "📝" },
   { page: "favorites", label: "Favorites", icon: "⭐" },
-  { page: "recent", label: "Recent", icon: "🕘" },
+  { page: "semantic-search", label: "Semantic Search", icon: "✨" },
 ];
 
 function Sidebar({
@@ -22,35 +22,72 @@ function Sidebar({
   onNotes,
   onFavorites,
   onRecent,
+  onSemanticSearch,
   onSettings,
   onHelpSupport,
   onLogout,
 
+  sidebarOpen = true,
   onToggleSidebar,
 }) {
   const handleMenuClick = (page) => {
-    if (page === "dashboard") onDashboard?.();
-    if (page === "saved-resources") onSavedResources?.();
-    if (page === "collections") onCollections?.();
-    if (page === "tags") onTags?.();
-    if (page === "notes") onNotes?.();
-    if (page === "favorites") onFavorites?.();
-    if (page === "recent") onRecent?.();
+    switch (page) {
+      case "dashboard":
+        onDashboard?.();
+        break;
+
+      case "saved-resources":
+        onSavedResources?.();
+        break;
+
+      case "collections":
+        onCollections?.();
+        break;
+
+      case "tags":
+        onTags?.();
+        break;
+
+      case "notes":
+        onNotes?.();
+        break;
+
+      case "favorites":
+        onFavorites?.();
+        break;
+
+      case "semantic-search":
+        console.log("Semantic Search menu clicked");
+        console.log("onSemanticSearch callback:", onSemanticSearch);
+
+        if (typeof onSemanticSearch === "function") {
+          onSemanticSearch();
+        } else {
+          console.error(
+            "Semantic Search navigation callback is missing!"
+          );
+        }
+        break;
+
+      default:
+        break;
+    }
   };
 
   return (
-    <aside className="shared-sidebar">
-
+    <aside
+      className={`shared-sidebar ${
+        sidebarOpen ? "sidebar-open" : "sidebar-collapsed"
+      }`}
+    >
       {/* SMARTMARK BRAND */}
       <button
         type="button"
         className="shared-sidebar-brand"
         onClick={onToggleSidebar}
-        title="Close sidebar"
+        title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
       >
-        <div className="shared-brand-logo">
-          S
-        </div>
+        <div className="shared-brand-logo">S</div>
 
         <div className="shared-brand-copy">
           <h2>SmartMark</h2>
@@ -58,12 +95,9 @@ function Sidebar({
         </div>
       </button>
 
-      {/* MENU */}
+      {/* MAIN MENU */}
       <nav className="shared-sidebar-nav">
-
-        <p className="shared-sidebar-title">
-          MENU
-        </p>
+        <p className="shared-sidebar-title">MENU</p>
 
         {menuItems.map((item) => (
           <button
@@ -73,26 +107,24 @@ function Sidebar({
               activePage === item.page ? "active" : ""
             }`}
             onClick={() => handleMenuClick(item.page)}
+            title={item.label}
+            aria-current={
+              activePage === item.page ? "page" : undefined
+            }
           >
-            <span className="shared-menu-icon">
-              {item.icon}
-            </span>
-
-            <span className="shared-menu-label">
-              {item.label}
-            </span>
+            <span className="shared-menu-icon">{item.icon}</span>
+            <span className="shared-menu-label">{item.label}</span>
           </button>
         ))}
-
       </nav>
 
-      {/* BOTTOM */}
+      {/* BOTTOM MENU */}
       <div className="shared-sidebar-bottom">
-
         <button
           type="button"
           className="shared-menu-item"
           onClick={onSettings}
+          title="Settings"
         >
           <span className="shared-menu-icon">⚙</span>
           <span className="shared-menu-label">Settings</span>
@@ -102,22 +134,22 @@ function Sidebar({
           type="button"
           className="shared-menu-item"
           onClick={onHelpSupport}
+          title="Help & Support"
         >
           <span className="shared-menu-icon">❓</span>
-          <span className="shared-menu-label">Help & Support</span>
+          <span className="shared-menu-label">Help &amp; Support</span>
         </button>
 
         <button
           type="button"
           className="shared-menu-item shared-logout"
           onClick={onLogout}
+          title="Logout"
         >
           <span className="shared-menu-icon">↪</span>
           <span className="shared-menu-label">Logout</span>
         </button>
-
       </div>
-
     </aside>
   );
 }

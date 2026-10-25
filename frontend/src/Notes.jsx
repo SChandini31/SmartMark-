@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./Notes.css";
 import Sidebar from "./Sidebar";
 import ThemeToggle from "./ThemeToggle";
-import SemanticSearch from "./SemanticSearch";
 import Notifications from "./Notifications";
 import { apiRequest } from "./authApi";
 
@@ -42,6 +41,7 @@ function Notes({
   onSavedResources,
   onCollections,
   onTags,
+  onSemanticSearch,
   onFavorites,
   onRecent,
   onSettings,
@@ -165,6 +165,7 @@ function Notes({
         onRecent={onRecent}
         onSettings={onSettings}
         onHelpSupport={onHelpSupport}
+        onSemanticSearch={onSemanticSearch}
         onLogout={onLogout}
       />
 
@@ -241,10 +242,6 @@ function Notes({
           <div className="notes-page-heading">
 
             <div>
-
-              <p className="notes-page-label">
-                PERSONAL KNOWLEDGE
-              </p>
 
               <h1>
                 My Notes
@@ -345,25 +342,19 @@ function Notes({
           {/* ================= TOOLBAR ================= */}
           <div className="notes-toolbar">
 
-            <div className="notes-search-box">
+            
+<div className="notes-search-box">
+  <span>
+    ⌕
+  </span>
 
-              <span>
-                ⌕
-              </span>
-
-              <input
-                type="text"
-                placeholder="Search notes..."
-                value={searchTerm}
-                onChange={(e) =>
-                  setSearchTerm(e.target.value)
-                }
-              />
-              <SemanticSearch query={searchTerm} />
-
-            </div>
-
-
+  <input
+    type="text"
+    placeholder="Search notes..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+</div>
             <div className="notes-toolbar-actions">
 
               <button className="notes-filter-btn">

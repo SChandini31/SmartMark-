@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import "./Tags.css";
 import Sidebar from "./Sidebar";
 import ThemeToggle from "./ThemeToggle";
-import SemanticSearch from "./SemanticSearch";
 import Notifications from "./Notifications";
 import { apiRequest } from "./authApi";
 
@@ -23,6 +22,7 @@ function Tags({
   onNotes,
   onFavorites,
   onRecent,
+  onSemanticSearch,
   onTags,
   onSettings,
   onHelpSupport,
@@ -168,6 +168,7 @@ function Tags({
         onCollections={onCollections}
         onNotes={onNotes}
         onFavorites={onFavorites}
+        onSemanticSearch={onSemanticSearch}
         onRecent={onRecent}
         onSettings={onSettings}
         onHelpSupport={onHelpSupport}
@@ -176,16 +177,16 @@ function Tags({
 
       <main className="tags-main">
         <header className="tags-topbar">
-          <div className="tags-global-search">
-            <span aria-hidden="true">⌕</span>
-            <input
-              aria-label="Search your saved knowledge"
-              placeholder="Search your saved knowledge..."
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-            />
-            <SemanticSearch query={searchTerm} />
-          </div>
+          
+<div className="tags-global-search">
+  <span aria-hidden="true">⌕</span>
+  <input
+    aria-label="Search your saved knowledge"
+    placeholder="Search your saved knowledge..."
+    value={searchTerm}
+    onChange={(event) => setSearchTerm(event.target.value)}
+  />
+</div>
           <div className="tags-topbar-actions">
             <Notifications
               onSavedResources={onSavedResources}
@@ -209,7 +210,6 @@ function Tags({
         <section className="tags-content">
           <header className="tags-header">
             <div>
-              <p>PERSONAL KNOWLEDGE</p>
               <h1>Tags</h1>
               <span>Connect related resources and find ideas faster.</span>
             </div>

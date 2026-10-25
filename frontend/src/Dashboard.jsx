@@ -1,8 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import "./Dashboard.css";
 import Sidebar from "./Sidebar";
 import ThemeToggle from "./ThemeToggle";
-import SemanticSearch from "./SemanticSearch";
 import Notifications from "./Notifications";
 import { apiRequest } from "./authApi";
 
@@ -16,47 +21,26 @@ const resourceTypeDetails = [
   { key: "other", label: "Other", color: "#d9dbea" },
 ];
 
-const metricDestinations = {
-  "Saved Resources": "saved",
-  Collections: "collections",
-  Tags: "tags",
-  Notes: "notes",
-  Favorites: "favorites",
-  "Forgotten Resources": "saved",
-};
-
 function isRecord(value) {
-  return (
-    value !== null &&
+  return value !== null &&
     typeof value === "object" &&
-    !Array.isArray(value)
-  );
+    !Array.isArray(value);
 }
 
 function isNonNegativeNumber(value) {
-  return (
-    typeof value === "number" &&
+  return typeof value === "number" &&
     Number.isFinite(value) &&
-    value >= 0
-  );
+    value >= 0;
 }
 
-/*
- * Backend dashboard response validation
- *
- * Important:
- * recently_saved[].resource_type can be:
- * - a string
- * - null
- *
- * The backend currently returns null for some resources,
- * so null is accepted here.
- */
+function isStringOrNull(value) {
+  return typeof value === "string" || value === null;
+}
+
 function isDashboardResponse(value) {
   return (
     isRecord(value) &&
     isRecord(value.stats) &&
-
     [
       "resources",
       "collections",
@@ -67,77 +51,51 @@ function isDashboardResponse(value) {
     ].every((key) =>
       isNonNegativeNumber(value.stats[key])
     ) &&
-
     Array.isArray(value.saving_activity) &&
-    value.saving_activity.every((item) => (
-      isRecord(item) &&
-      typeof item.date === "string" &&
-      isNonNegativeNumber(item.count)
-    )) &&
-
+    value.saving_activity.every(
+      (item) =>
+        isRecord(item) &&
+        typeof item.date === "string" &&
+        isNonNegativeNumber(item.count)
+    ) &&
     Array.isArray(value.resource_types) &&
-    value.resource_types.every((item) => (
-      isRecord(item) &&
-      typeof item.type === "string" &&
-      isNonNegativeNumber(item.count)
-    )) &&
-
+    value.resource_types.every(
+      (item) =>
+        isRecord(item) &&
+        typeof item.type === "string" &&
+        isNonNegativeNumber(item.count)
+    ) &&
     Array.isArray(value.recently_saved) &&
-    value.recently_saved.every((item) => (
-      isRecord(item) &&
-      typeof item.id === "number" &&
-      typeof item.title === "string" &&
-      typeof item.url === "string" &&
-
-      // Backend may return null for resource_type
-      (
-        typeof item.resource_type === "string" ||
-        item.resource_type === null
-      ) &&
-
-      typeof item.source_domain === "string" &&
-
-      (
-        typeof item.preview_image === "string" ||
-        item.preview_image === null
-      ) &&
-
-      typeof item.created_at === "string" &&
-      typeof item.is_favorite === "boolean"
-    ))
+    value.recently_saved.every(
+      (item) =>
+        isRecord(item) &&
+        typeof item.id === "number" &&
+        typeof item.title === "string" &&
+        isStringOrNull(item.url) &&
+        isStringOrNull(item.resource_type) &&
+        isStringOrNull(item.source_domain) &&
+        isStringOrNull(item.preview_image) &&
+        typeof item.created_at === "string" &&
+        typeof item.is_favorite === "boolean"
+    )
   );
 }
 
 function getTimeGreeting(date = new Date()) {
   const hour = date.getHours();
 
-  if (hour < 12) {
-    return "Good morning";
-  }
-
-  if (hour < 17) {
-    return "Good afternoon";
-  }
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
 
   return "Good evening";
 }
 
-/*
- * Converts backend resource types into
- * user-friendly dashboard categories.
- *
- * Handles null safely.
- */
 function formatResourceType(type) {
-  if (!type || typeof type !== "string") {
-    return "Other";
-  }
+  if (!type || typeof type !== "string") return "Other";
 
   const normalized = type.toLowerCase();
 
-  if (normalized.includes("article")) {
-    return "Article";
-  }
+  if (normalized.includes("article")) return "Article";
 
   if (
     normalized.includes("video") ||
@@ -167,9 +125,7 @@ function formatResourceType(type) {
     return "Image";
   }
 
-  if (normalized.includes("note")) {
-    return "Note";
-  }
+  if (normalized.includes("note")) return "Note";
 
   return "Other";
 }
@@ -177,29 +133,15 @@ function formatResourceType(type) {
 function resourceIcon(type) {
   const label = formatResourceType(type);
 
-  if (label === "Article") {
-    return "▤";
-  }
+  if (label === "Article") return "▤";
+  if (label === "Video") return "▶";
+  if (label === "GitHub") return "⌘";
 
-  if (label === "Video") {
-    return "▶";
-  }
-
-  if (label === "GitHub") {
-    return "⌘";
-  }
-
-  if (label === "Document") {
+  if (label === "Document" || label === "Image") {
     return "▧";
   }
 
-  if (label === "Image") {
-    return "▧";
-  }
-
-  if (label === "Note") {
-    return "✎";
-  }
+  if (label === "Note") return "✎";
 
   return "↗";
 }
@@ -218,9 +160,6 @@ function formatSavedDate(dateValue) {
   }).format(date);
 }
 
-/*
- * Creates the SVG line chart path
- */
 function buildActivityPath(
   items,
   width,
@@ -239,21 +178,16 @@ function buildActivityPath(
       items.length === 1
         ? width / 2
         : padding.left +
-          (index * usableWidth) /
-            (items.length - 1),
+          (index * usableWidth) / (items.length - 1),
 
     y:
       padding.top +
       usableHeight -
-      (item.count / maximum) *
-        usableHeight,
+      (item.count / maximum) * usableHeight,
   }));
 
   if (!points.length) {
-    return {
-      points,
-      path: "",
-    };
+    return { points, path: "" };
   }
 
   if (points.length === 1) {
@@ -263,34 +197,23 @@ function buildActivityPath(
     };
   }
 
-  const path = points.reduce(
-    (result, point, index) => {
-      if (index === 0) {
-        return `M ${point.x} ${point.y}`;
-      }
+  const path = points.reduce((result, point, index) => {
+    if (index === 0) {
+      return `M ${point.x} ${point.y}`;
+    }
 
-      const previous = points[index - 1];
+    const previous = points[index - 1];
+    const middleX = (previous.x + point.x) / 2;
 
-      const middleX =
-        (previous.x + point.x) / 2;
+    return `${result} Q ${middleX} ${previous.y}, ${middleX} ${
+      (previous.y + point.y) / 2
+    } T ${point.x} ${point.y}`;
+  }, "");
 
-      return `${result} Q ${middleX} ${previous.y}, ${middleX} ${
-        (previous.y + point.y) / 2
-      } T ${point.x} ${point.y}`;
-    },
-    ""
-  );
-
-  return {
-    points,
-    path,
-  };
+  return { points, path };
 }
 
-/*
- * Saving Activity Chart
- */
-function SavingActivityChart({ items }) {
+function SavingActivityChart({ items = [] }) {
   const width = 760;
   const height = 250;
 
@@ -306,21 +229,20 @@ function SavingActivityChart({ items }) {
     ...items.map((item) => item.count)
   );
 
-  const { points, path } =
-    buildActivityPath(
-      items,
-      width,
-      height,
-      padding,
-      maximum
-    );
+  const { points, path } = buildActivityPath(
+    items,
+    width,
+    height,
+    padding,
+    maximum
+  );
 
   const total = items.reduce(
     (sum, item) => sum + item.count,
     0
   );
 
-  const hasActivity = total > 0;
+  const chartBottom = height - padding.bottom;
 
   const gridValues = [
     ...new Set([
@@ -329,9 +251,6 @@ function SavingActivityChart({ items }) {
       maximum,
     ]),
   ];
-
-  const chartBottom =
-    height - padding.bottom;
 
   return (
     <section
@@ -343,27 +262,19 @@ function SavingActivityChart({ items }) {
           <h2 id="saving-activity-title">
             Saving Activity
           </h2>
-
-          <p>
-            Resources saved over time
-          </p>
+          <p>Resources saved over time</p>
         </div>
 
-        {hasActivity && (
+        {total > 0 && (
           <span className="activity-total">
             {total} saved
           </span>
         )}
       </div>
 
-      {!items.length ? (
+      {!items.length || total === 0 ? (
         <p className="dashboard-empty-state">
-          No saving activity is available yet.
-        </p>
-      ) : !hasActivity ? (
-        <p className="dashboard-empty-state">
-          Your saving activity will appear
-          here when you save resources.
+          Your saving activity will appear here when you save resources.
         </p>
       ) : (
         <div className="activity-chart-wrap">
@@ -371,16 +282,14 @@ function SavingActivityChart({ items }) {
             className="activity-chart"
             viewBox={`0 0 ${width} ${height}`}
             role="img"
-            aria-label="Saving activity line chart. The horizontal axis shows days and the vertical axis shows resources saved."
+            aria-label="Saving activity chart"
             preserveAspectRatio="none"
           >
             {gridValues.map((value) => {
               const y =
                 padding.top +
-                ((maximum - value) /
-                  maximum) *
-                  (chartBottom -
-                    padding.top);
+                ((maximum - value) / maximum) *
+                  (chartBottom - padding.top);
 
               return (
                 <g key={`grid-${value}`}>
@@ -407,9 +316,7 @@ function SavingActivityChart({ items }) {
             <path
               className="activity-area"
               d={`${path} L ${
-                points[
-                  points.length - 1
-                ]?.x ?? padding.left
+                points[points.length - 1]?.x ?? padding.left
               } ${chartBottom} L ${
                 points[0]?.x ?? padding.left
               } ${chartBottom} Z`}
@@ -440,13 +347,7 @@ function SavingActivityChart({ items }) {
                 />
 
                 <title>
-                  {`${items[index].date}: ${
-                    items[index].count
-                  } ${
-                    items[index].count === 1
-                      ? "resource"
-                      : "resources"
-                  } saved`}
+                  {`${items[index].date}: ${items[index].count} resources saved`}
                 </title>
               </g>
             ))}
@@ -469,56 +370,45 @@ function SavingActivityChart({ items }) {
   );
 }
 
-/*
- * Knowledge Mix
- */
 function KnowledgeMix({
-  resourceTypes,
-  totalResources,
+  resourceTypes = [],
+  totalResources = 0,
 }) {
   const categorizedCounts = useMemo(() => {
     const counts = Object.fromEntries(
-      resourceTypeDetails.map(
-        ({ key }) => [key, 0]
-      )
+      resourceTypeDetails.map(({ key }) => [key, 0])
     );
 
-    resourceTypes.forEach(
-      ({ type, count }) => {
-        const category =
-          formatResourceType(type).toLowerCase();
+    resourceTypes.forEach(({ type, count }) => {
+      const category =
+        formatResourceType(type).toLowerCase();
 
-        if (
-          Object.prototype.hasOwnProperty.call(
-            counts,
-            category
-          )
-        ) {
-          counts[category] += count;
-        } else {
-          counts.other += count;
-        }
+      if (
+        Object.prototype.hasOwnProperty.call(
+          counts,
+          category
+        )
+      ) {
+        counts[category] += count;
+      } else {
+        counts.other += count;
       }
-    );
+    });
 
-    return resourceTypeDetails.map(
-      (category) => ({
-        ...category,
-        count: counts[category.key],
-      })
-    );
+    return resourceTypeDetails.map((category) => ({
+      ...category,
+      count: counts[category.key],
+    }));
   }, [resourceTypes]);
 
-  const presentTypes =
-    categorizedCounts.filter(
-      ({ count }) => count > 0
-    );
+  const presentTypes = categorizedCounts.filter(
+    ({ count }) => count > 0
+  );
 
-  const totalByType =
-    categorizedCounts.reduce(
-      (sum, item) => sum + item.count,
-      0
-    );
+  const totalByType = categorizedCounts.reduce(
+    (sum, item) => sum + item.count,
+    0
+  );
 
   let cumulative = 0;
 
@@ -528,8 +418,7 @@ function KnowledgeMix({
           const start = cumulative;
 
           cumulative +=
-            (item.count / totalByType) *
-            100;
+            (item.count / totalByType) * 100;
 
           return `${item.color} ${start}% ${cumulative}%`;
         })
@@ -537,9 +426,7 @@ function KnowledgeMix({
 
   const donutStyle = gradientStops.length
     ? {
-        background: `conic-gradient(${gradientStops.join(
-          ", "
-        )})`,
+        background: `conic-gradient(${gradientStops.join(", ")})`,
       }
     : undefined;
 
@@ -553,10 +440,7 @@ function KnowledgeMix({
           <h2 id="knowledge-mix-title">
             Your Knowledge Mix
           </h2>
-
-          <p>
-            What you’ve been collecting
-          </p>
+          <p>What you’ve been collecting</p>
         </div>
 
         <span className="mix-total">
@@ -564,21 +448,17 @@ function KnowledgeMix({
         </span>
       </div>
 
-      {!totalByType ||
-      !presentTypes.length ? (
+      {!presentTypes.length ? (
         <p className="dashboard-empty-state">
-          Your resource types will appear
-          here as you save resources.
+          Your resource types will appear here as you save resources.
         </p>
       ) : (
         <div
           className={`knowledge-mix-content ${
-            presentTypes.length > 4
-              ? "has-many-types"
-              : ""
+            presentTypes.length > 4 ? "has-many-types" : ""
           }`}
         >
-          {presentTypes.length <= 4 ? (
+          {presentTypes.length <= 4 && (
             <div
               className="mix-donut"
               style={donutStyle}
@@ -586,14 +466,11 @@ function KnowledgeMix({
               aria-label={`Distribution of ${totalByType} resources by type`}
             >
               <div className="mix-donut-center">
-                <strong>
-                  {totalByType}
-                </strong>
-
+                <strong>{totalByType}</strong>
                 <span>resources</span>
               </div>
             </div>
-          ) : null}
+          )}
 
           <ul className="mix-legend">
             {presentTypes.map((item) => (
@@ -605,12 +482,9 @@ function KnowledgeMix({
                       style={{
                         width: `${Math.max(
                           2,
-                          (item.count /
-                            totalByType) *
-                            100
+                          (item.count / totalByType) * 100
                         )}%`,
-                        backgroundColor:
-                          item.color,
+                        backgroundColor: item.color,
                       }}
                     />
                   </div>
@@ -619,17 +493,13 @@ function KnowledgeMix({
                 <span className="mix-legend-label">
                   <i
                     style={{
-                      backgroundColor:
-                        item.color,
+                      backgroundColor: item.color,
                     }}
                   />
-
                   {item.label}
                 </span>
 
-                <strong>
-                  {item.count}
-                </strong>
+                <strong>{item.count}</strong>
               </li>
             ))}
           </ul>
@@ -639,10 +509,286 @@ function KnowledgeMix({
   );
 }
 
-/*
- * Dashboard
- */
+/* Installation guide shared by the extension buttons */
+function ExtensionInstallGuide({ onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  const copyExtensionsAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        "chrome://extensions/"
+      );
+
+      window.alert(
+        "Copied! Paste chrome://extensions/ into your Chrome address bar."
+      );
+    } catch {
+      window.alert(
+        "Open a new Chrome tab and type chrome://extensions/ in the address bar."
+      );
+    }
+  };
+
+  return (
+    <div
+      className="extension-modal-overlay"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <section
+        className="extension-install-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="extension-guide-title"
+      >
+        <button
+          className="extension-modal-close"
+          type="button"
+          onClick={onClose}
+          aria-label="Close installation guide"
+        >
+          ×
+        </button>
+
+        <div
+          className="extension-modal-icon"
+          aria-hidden="true"
+        >
+          ✦
+        </div>
+
+        <span className="extension-eyebrow">
+          SMARTMARK EXTENSION
+        </span>
+
+        <h2 id="extension-guide-title">
+          Install SmartMark Extension
+        </h2>
+
+        <p className="extension-modal-description">
+          Follow these simple steps to get started.
+        </p>
+
+        <ol className="extension-install-steps">
+          <li>
+            <span className="extension-step-number">1</span>
+            <div>
+              <strong>Open Chrome Extensions</strong>
+              <p>
+                Open a new Chrome tab and visit:
+              </p>
+              <code>chrome://extensions/</code>
+            </div>
+          </li>
+
+          <li>
+            <span className="extension-step-number">2</span>
+            <div>
+              <strong>Enable Developer mode</strong>
+              <p>
+                Turn on Developer mode, then click
+                <b> Load unpacked</b>.
+              </p>
+            </div>
+          </li>
+
+          <li>
+            <span className="extension-step-number">3</span>
+            <div>
+              <strong>Select your extension folder</strong>
+              <p>
+                Choose your local{" "}
+                <b>SmartMark-extension</b> folder.
+                Make sure it contains a valid manifest.json file.
+              </p>
+            </div>
+          </li>
+
+          <li>
+            <span className="extension-step-number">4</span>
+            <div>
+              <strong>Pin and start saving</strong>
+              <p>
+                Pin SmartMark using Chrome’s Extensions menu
+                and use it while browsing.
+              </p>
+            </div>
+          </li>
+        </ol>
+
+        <div className="extension-modal-actions">
+          <button
+            type="button"
+            className="extension-install-btn"
+            onClick={copyExtensionsAddress}
+          >
+            Copy Extensions Address
+          </button>
+
+          <button
+            type="button"
+            className="extension-learn-btn"
+            onClick={onClose}
+          >
+            Got it!
+          </button>
+        </div>
+
+        <p className="extension-modal-note">
+          Local installation is for testing. The Chrome Web Store
+          listing can be added after the extension is published.
+        </p>
+      </section>
+    </div>
+  );
+}
+
+/* Small glowing popup below the welcome section */
+function ExtensionShiningPopup({
+  onLearnMore,
+  onClose,
+}) {
+  return (
+    <section
+      className="extension-shining-popup"
+      aria-label="SmartMark Chrome Extension promotion"
+    >
+      <div
+        className="extension-popup-symbol"
+        aria-hidden="true"
+      >
+        ✦
+      </div>
+
+      <div className="extension-popup-copy">
+        <span className="extension-eyebrow">
+          SMARTMARK EXTENSION
+        </span>
+
+        <h2>✨ Save resources faster!</h2>
+
+        <p>
+          Capture links, images and notes directly from your browser.
+        </p>
+      </div>
+
+      <div className="extension-popup-actions">
+        <button
+          className="extension-install-btn"
+          type="button"
+          onClick={onLearnMore}
+        >
+          Install Extension{" "}
+          <span aria-hidden="true">↗</span>
+        </button>
+
+        <button
+          className="extension-learn-btn"
+          type="button"
+          onClick={onLearnMore}
+        >
+          Learn more <span aria-hidden="true">→</span>
+        </button>
+      </div>
+
+      <button
+        type="button"
+        className="extension-popup-close"
+        onClick={onClose}
+        aria-label="Dismiss extension promotion"
+      >
+        ×
+      </button>
+    </section>
+  );
+}
+
+/* Large extension card at the bottom of the dashboard */
+function ChromeExtensionBanner({ onLearnMore }) {
+  return (
+    <section
+      className="extension-banner"
+      aria-labelledby="extension-banner-title"
+    >
+      <div
+        className="extension-banner-icon"
+        aria-hidden="true"
+      >
+        <span>↗</span>
+      </div>
+
+      <div className="extension-banner-content">
+        <span className="extension-eyebrow">
+          SMARTMARK EXTENSION
+        </span>
+
+        <h2 id="extension-banner-title">
+          Save faster with Chrome Extension
+        </h2>
+
+        <p>
+          Capture links, images and notes directly from your
+          browser and keep everything organized in SmartMark.
+        </p>
+
+        <div className="extension-banner-actions">
+          <button
+            type="button"
+            className="extension-install-btn"
+            onClick={onLearnMore}
+          >
+            Install Extension{" "}
+            <span aria-hidden="true">↗</span>
+          </button>
+
+          <button
+            type="button"
+            className="extension-learn-btn"
+            onClick={onLearnMore}
+          >
+            Learn more <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        className="extension-banner-illustration"
+        aria-hidden="true"
+      >
+        <div className="extension-browser">
+          <div className="extension-browser-top">
+            <i />
+            <i />
+            <i />
+          </div>
+
+          <div className="extension-bookmark">N</div>
+          <div className="extension-line" />
+          <div className="extension-line short" />
+          <div className="extension-line" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Dashboard({
+  onDashboard,
   onSavedResources,
   onCollections,
   onTags,
@@ -650,105 +796,77 @@ function Dashboard({
   onFavorites,
   onRecent,
   onSettings,
+  onSemanticSearch,
   onHelpSupport,
   onLogout,
+  sidebarOpen = true,
+  onToggleSidebar,
 }) {
-  const [greeting] = useState(
-    () => getTimeGreeting()
-  );
+  const [greeting] = useState(() => getTimeGreeting());
 
-  const [searchQuery, setSearchQuery] =
-    useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dashboardData, setDashboardData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [dashboardData, setDashboardData] =
-    useState(null);
-
-  const [isLoading, setIsLoading] =
+  const [showExtensionPopup, setShowExtensionPopup] =
     useState(true);
 
-  const [errorMessage, setErrorMessage] =
-    useState("");
+  const [showInstallGuide, setShowInstallGuide] =
+    useState(false);
 
-  /*
-   * Load dashboard data from backend
-   */
-  const loadDashboard =
-    useCallback(async () => {
-      setIsLoading(true);
-      setErrorMessage("");
+  const openInstallGuide = useCallback(() => {
+    setShowInstallGuide(true);
+  }, []);
 
-      try {
-        /*
-         * Backend endpoint:
-         * GET /api/dashboard/
-         */
-        const result =
-          await apiRequest("dashboard/");
+  const closeInstallGuide = useCallback(() => {
+    setShowInstallGuide(false);
+  }, []);
 
-        console.log(
-          "Dashboard API response:",
+  const loadDashboard = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage("");
+
+    try {
+      const result = await apiRequest("dashboard/");
+
+      console.log("Dashboard API response:", result);
+
+      if (!isDashboardResponse(result)) {
+        console.error(
+          "Unexpected dashboard response:",
           result
         );
 
-        /*
-         * Validate backend response
-         */
-        if (!isDashboardResponse(result)) {
-          console.error(
-            "Unexpected dashboard response:",
-            result
-          );
-
-          throw new Error(
-            "The server returned an unexpected dashboard response."
-          );
-        }
-
-        setDashboardData(result);
-      } catch (error) {
-        console.error(
-          "Dashboard loading error:",
-          error
+        throw new Error(
+          "The server returned an unexpected dashboard response."
         );
-
-        setErrorMessage(
-          error.message ||
-            "Unable to load your dashboard."
-        );
-      } finally {
-        setIsLoading(false);
       }
-    }, []);
 
-  /*
-   * Load dashboard when component opens
-   */
+      setDashboardData(result);
+    } catch (error) {
+      console.error("Dashboard loading error:", error);
+
+      setErrorMessage(
+        error?.message || "Unable to load your dashboard."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadDashboard();
   }, [loadDashboard]);
 
-  /*
-   * Show only latest 5 resources
-   */
-  const displayedResources =
-    useMemo(
-      () =>
-        dashboardData?.recently_saved.slice(
-          0,
-          5
-        ) ?? [],
-      [dashboardData]
-    );
+  const displayedResources = useMemo(
+    () => dashboardData?.recently_saved?.slice(0, 5) ?? [],
+    [dashboardData]
+  );
 
-  const typeData =
-    dashboardData?.resource_types ?? [];
+  const stats = dashboardData?.stats;
+  const typeData = dashboardData?.resource_types ?? [];
 
-  const stats =
-    dashboardData?.stats;
-
-  /*
-   * Navigation for dashboard metrics
-   */
   const navigateByMetric = {
     saved: onSavedResources,
     collections: onCollections,
@@ -758,9 +876,6 @@ function Dashboard({
     forgotten: onSavedResources,
   };
 
-  /*
-   * Dashboard metric cards
-   */
   const metrics = stats
     ? [
         {
@@ -769,55 +884,57 @@ function Dashboard({
           icon: "▤",
           destination: "saved",
         },
-
         {
           label: "Collections",
           value: stats.collections,
           icon: "▱",
           destination: "collections",
         },
-
         {
           label: "Tags",
           value: stats.tags,
           icon: "#",
           destination: "tags",
         },
-
         {
           label: "Notes",
           value: stats.notes,
           icon: "✎",
           destination: "notes",
         },
-
         {
           label: "Favorites",
           value: stats.favorites,
           icon: "♡",
           destination: "favorites",
         },
-
         {
           label: "Forgotten Resources",
-          value:
-            stats.forgotten_resources,
+          value: stats.forgotten_resources,
           icon: "↻",
           destination: "forgotten",
         },
       ]
     : [];
 
+  const normalizedSearch =
+    searchQuery.trim().toLowerCase();
+
+  const filteredResources = displayedResources.filter(
+    (resource) =>
+      !normalizedSearch ||
+      resource.title.toLowerCase().includes(normalizedSearch) ||
+      (resource.source_domain || "")
+        .toLowerCase()
+        .includes(normalizedSearch)
+  );
+
   return (
     <div className="dashboard-container">
-
-      {/* ================= SIDEBAR ================= */}
-
       <Sidebar
         activePage="dashboard"
-        onSavedResources={
-          onSavedResources
-        }
+        onDashboard={onDashboard}
+        onSavedResources={onSavedResources}
         onCollections={onCollections}
         onTags={onTags}
         onNotes={onNotes}
@@ -825,50 +942,32 @@ function Dashboard({
         onRecent={onRecent}
         onSettings={onSettings}
         onHelpSupport={onHelpSupport}
+        onSemanticSearch={onSemanticSearch}
         onLogout={onLogout}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={onToggleSidebar}
       />
 
-      {/* ================= MAIN ================= */}
-
       <main className="dashboard-main">
-
-        {/* ================= HEADER ================= */}
-
         <header className="dashboard-header">
-
           <div className="header-search">
-
-            <span aria-hidden="true">
-              ⌕
-            </span>
+            <span aria-hidden="true">⌕</span>
 
             <input
               type="text"
               placeholder="Search your saved knowledge..."
               value={searchQuery}
               onChange={(event) =>
-                setSearchQuery(
-                  event.target.value
-                )
+                setSearchQuery(event.target.value)
               }
               aria-label="Search your saved knowledge"
             />
-
-            <SemanticSearch
-              query={searchQuery}
-            />
-
           </div>
 
           <div className="header-actions">
-
             <Notifications
-              onSavedResources={
-                onSavedResources
-              }
-              onCollections={
-                onCollections
-              }
+              onSavedResources={onSavedResources}
+              onCollections={onCollections}
               onTags={onTags}
             />
 
@@ -877,114 +976,86 @@ function Dashboard({
             <div className="header-divider" />
 
             <button
-              aria-label="Open profile settings for Chandini"
+              aria-label="Open profile settings"
               className="header-profile profile-settings-trigger"
               onClick={onSettings}
               type="button"
             >
-              <div className="profile-avatar small">
-                M
-              </div>
+              <div className="profile-avatar small">M</div>
 
               <div>
-                <strong>
-                  Chandini
-                </strong>
-
-                <span>
-                  My Account
-                </span>
+                <strong>Monika</strong>
+                <span>My Account</span>
               </div>
 
-              <span className="arrow">
-                ⌄
-              </span>
+              <span className="arrow">⌄</span>
             </button>
-
           </div>
-
         </header>
 
-        {/* ================= CONTENT ================= */}
-
         <section className="dashboard-content dashboard-redesign">
-
-          {/* ================= WELCOME ================= */}
-
+          {/* Welcome heading and both buttons */}
           <div className="welcome-section">
-
             <div>
-
-              <p className="welcome-label">
-                YOUR KNOWLEDGE SPACE
-              </p>
-
               <h1>
-                {greeting}, Chandini{" "}
-                <span aria-hidden="true">
-                  👋
-                </span>
+                {greeting}, Monika{" "}
+                <span aria-hidden="true">👋</span>
               </h1>
 
               <p className="welcome-description">
-                Everything you&apos;ve saved,
-                organized and discovered —
-                all in one place.
+                Everything you&apos;ve saved, organized and discovered
+                — all in one place.
               </p>
-
             </div>
 
-            <button
-              className="save-resource-btn"
-              onClick={onSavedResources}
-              type="button"
-            >
-              <span aria-hidden="true">
-                ＋
-              </span>
+            <div className="welcome-action-buttons">
+  <button
+    className="save-resource-btn"
+    onClick={onSavedResources}
+    type="button"
+  >
+    <span aria-hidden="true">＋</span> Save Resource
+  </button>
 
-              Save Resource
-            </button>
-
+  <button
+    className="extension-install-btn welcome-install-btn"
+    onClick={openInstallGuide}
+    type="button"
+  >
+    Install Extension <span aria-hidden="true">↗</span>
+  </button>
+</div>
           </div>
 
-          {/* ================= ERROR ================= */}
-
+          {/* Dashboard error */}
           {errorMessage && (
             <div
               className="dashboard-load-error"
               role="alert"
             >
-              <span>
-                {errorMessage}
-              </span>
+              <span>{errorMessage}</span>
 
               <button
                 onClick={loadDashboard}
                 type="button"
                 disabled={isLoading}
               >
-                {isLoading
-                  ? "Retrying…"
-                  : "Retry"}
+                {isLoading ? "Retrying…" : "Retry"}
               </button>
             </div>
           )}
 
-          {/* ================= METRICS ================= */}
-
+          {/* Knowledge metrics */}
           <section
             className="knowledge-metrics"
             aria-label="Knowledge metrics"
           >
-
             {isLoading && !stats ? (
               <p
                 className="dashboard-loading-state"
                 role="status"
               >
-                Loading your knowledge
-                overview…
+                Loading your knowledge overview…
               </p>
             ) : (
               metrics.map((metric) => (
@@ -992,13 +1063,13 @@ function Dashboard({
                   className="knowledge-metric"
                   key={metric.label}
                   onClick={
-                    navigateByMetric[
-                      metric.destination
-                    ]
+                    navigateByMetric[metric.destination]
                   }
                   type="button"
+                  disabled={
+                    !navigateByMetric[metric.destination]
+                  }
                 >
-
                   <span
                     className="knowledge-metric-icon"
                     aria-hidden="true"
@@ -1007,53 +1078,30 @@ function Dashboard({
                   </span>
 
                   <span className="knowledge-metric-copy">
-
-                    <strong>
-                      {metric.value}
-                    </strong>
-
-                    <span>
-                      {metric.label}
-                    </span>
-
+                    <strong>{metric.value}</strong>
+                    <span>{metric.label}</span>
                   </span>
-
                 </button>
               ))
             )}
-
           </section>
-
-          {/* ================= DASHBOARD DATA ================= */}
 
           {dashboardData && (
             <>
-
-              {/* ================= INSIGHTS ================= */}
-
+              {/* Charts */}
               <div className="dashboard-insights-grid">
-
                 <SavingActivityChart
-                  items={
-                    dashboardData.saving_activity
-                  }
+                  items={dashboardData.saving_activity}
                 />
 
                 <KnowledgeMix
-                  resourceTypes={
-                    typeData
-                  }
-                  totalResources={
-                    stats.resources
-                  }
+                  resourceTypes={typeData}
+                  totalResources={stats.resources}
                 />
-
               </div>
 
-              {/* ================= REDISCOVERY ================= */}
-
+              {/* Rediscovery */}
               <section className="knowledge-rediscovery">
-
                 <div
                   className="rediscovery-symbol"
                   aria-hidden="true"
@@ -1062,36 +1110,26 @@ function Dashboard({
                 </div>
 
                 <div className="knowledge-rediscovery-copy">
-
                   <p className="rediscovery-eyebrow">
                     A MOMENT TO REVISIT
                   </p>
 
-                  <h2>
-                    Knowledge to Rediscover
-                  </h2>
+                  <h2>Knowledge to Rediscover</h2>
 
                   <p>
                     You have{" "}
                     <strong>
-                      {
-                        stats.forgotten_resources
-                      }
+                      {stats.forgotten_resources}
                     </strong>{" "}
-                    {stats.forgotten_resources ===
-                    1
+                    {stats.forgotten_resources === 1
                       ? "resource"
                       : "resources"}{" "}
-                    that haven&apos;t been
-                    revisited recently.
+                    that haven&apos;t been revisited recently.
 
                     {stats.favorites > 0 && (
                       <>
-                        {" "}
-                        Keep your{" "}
-                        <strong>
-                          {stats.favorites}
-                        </strong>{" "}
+                        {" "}Keep your{" "}
+                        <strong>{stats.favorites}</strong>{" "}
                         {stats.favorites === 1
                           ? "favorite"
                           : "favorites"}{" "}
@@ -1099,79 +1137,62 @@ function Dashboard({
                       </>
                     )}
                   </p>
-
                 </div>
 
                 <button
                   className="rediscovery-action"
-                  onClick={
-                    onSavedResources
-                  }
+                  onClick={onSavedResources}
                   type="button"
                 >
                   View Resources{" "}
-                  <span aria-hidden="true">
-                    →
-                  </span>
+                  <span aria-hidden="true">→</span>
                 </button>
-
               </section>
 
-              {/* ================= RECENTLY SAVED ================= */}
-
+              {/* Recently saved resources */}
               <section
                 className="dashboard-panel recently-saved-panel"
                 aria-labelledby="recently-saved-title"
               >
-
                 <div className="dashboard-panel-heading">
-
                   <div>
-
                     <h2 id="recently-saved-title">
                       Recently Saved
                     </h2>
 
                     <p>
-                      Your latest additions
-                      to your knowledge space
+                      Your latest additions to your knowledge space
                     </p>
-
                   </div>
 
                   <button
                     className="dashboard-text-action"
-                    onClick={
-                      onSavedResources
-                    }
+                    onClick={onSavedResources}
                     type="button"
                   >
                     View all{" "}
-                    <span aria-hidden="true">
-                      →
-                    </span>
+                    <span aria-hidden="true">→</span>
                   </button>
-
                 </div>
 
-                {displayedResources.length ? (
+                {filteredResources.length ? (
                   <ul className="recently-saved-list">
+                    {filteredResources.map((resource) => {
+                      const resourceUrl =
+                        typeof resource.url === "string" &&
+                        resource.url.trim()
+                          ? resource.url
+                          : null;
 
-                    {displayedResources.map(
-                      (resource) => (
+                      return (
                         <li
                           className="recently-saved-item"
                           key={resource.id}
                         >
-
-                          {/* Preview image */}
-
                           {resource.preview_image ? (
                             <img
                               className="recently-saved-preview"
-                              src={
-                                resource.preview_image
-                              }
+                              src={resource.preview_image}
                               alt=""
                               loading="lazy"
                             />
@@ -1186,26 +1207,29 @@ function Dashboard({
                             </span>
                           )}
 
-                          {/* Resource information */}
-
                           <div className="recently-saved-info">
-
-                            <a
-                              href={resource.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="recently-saved-title"
-                            >
-                              {resource.title ||
-                                resource.url ||
-                                "Untitled resource"}
-                            </a>
+                            {resourceUrl ? (
+                              <a
+                                href={resourceUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="recently-saved-title"
+                              >
+                                {resource.title ||
+                                  resourceUrl ||
+                                  "Untitled resource"}
+                              </a>
+                            ) : (
+                              <span className="recently-saved-title">
+                                {resource.title ||
+                                  "Untitled resource"}
+                              </span>
+                            )}
 
                             <div className="recently-saved-meta">
-
                               <span>
                                 {resource.source_domain ||
-                                  "Unknown source"}
+                                  "Local file / unknown source"}
                               </span>
 
                               <span>
@@ -1215,111 +1239,112 @@ function Dashboard({
                               </span>
 
                               <time
-                                dateTime={
-                                  resource.created_at
-                                }
+                                dateTime={resource.created_at}
                               >
                                 {formatSavedDate(
                                   resource.created_at
                                 )}
                               </time>
-
                             </div>
-
                           </div>
 
-                          {/* Favorite */}
+                        
+<button
+  type="button"
+  className={`recently-saved-favorite ${
+    resource.is_favorite ? "is-favorite" : ""
+  }`}
+  aria-label={
+    resource.is_favorite
+      ? "Remove from favorites"
+      : "Add to favorites"
+  }
+  title={
+    resource.is_favorite
+      ? "Remove from favorites"
+      : "Add to favorites"
+  }
+  onClick={() => {
+    setDashboardData((previous) => ({
+      ...previous,
+      recently_saved: previous.recently_saved.map((item) =>
+        item.id === resource.id
+          ? { ...item, is_favorite: !item.is_favorite }
+          : item
+      ),
+      stats: {
+        ...previous.stats,
+        favorites: Math.max(
+          0,
+          previous.stats.favorites +
+            (resource.is_favorite ? -1 : 1)
+        ),
+      },
+    }));
+  }}
+>
+  {resource.is_favorite ? "★" : "☆"}
+</button>
 
-                          <span
-                            className={`recently-saved-favorite ${
-                              resource.is_favorite
-                                ? "is-favorite"
-                                : ""
-                            }`}
-                            aria-label={
-                              resource.is_favorite
-                                ? "Favorite"
-                                : "Not a favorite"
-                            }
-                            title={
-                              resource.is_favorite
-                                ? "Favorite"
-                                : "Not a favorite"
-                            }
-                          >
-                            {resource.is_favorite
-                              ? "★"
-                              : "☆"}
-                          </span>
-
-                          {/* Open */}
-
-                          <a
-                            className="recently-saved-open"
-                            href={resource.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            aria-label={`Open ${
-                              resource.title ||
-                              "resource"
-                            }`}
-                          >
-                            Open
-                          </a>
-
+                          {resourceUrl ? (
+                            <a
+                              className="recently-saved-open"
+                              href={resourceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`Open ${
+                                resource.title || "resource"
+                              }`}
+                            >
+                              Open
+                            </a>
+                          ) : (
+                            <span
+                              className="recently-saved-open"
+                              aria-disabled="true"
+                              title="This resource has no external URL"
+                            >
+                              File
+                            </span>
+                          )}
                         </li>
-                      )
-                    )}
-
+                      );
+                    })}
                   </ul>
                 ) : (
                   <p className="dashboard-empty-state">
-                    Save a resource and it
-                    will appear here.
+                    {normalizedSearch
+                      ? "No recent resources match your search."
+                      : "Save a resource and it will appear here."}
                   </p>
                 )}
-
               </section>
-
             </>
           )}
 
-          {/* ================= QUICK ACTIONS ================= */}
-
+          {/* Quick actions */}
           <section
             className="dashboard-quick-actions"
             aria-labelledby="quick-actions-title"
           >
-
             <div className="dashboard-panel-heading">
-
               <div>
-
                 <h2 id="quick-actions-title">
                   Quick Actions
                 </h2>
 
                 <p>
-                  Capture and organize what
-                  matters
+                  Capture and organize what matters
                 </p>
-
               </div>
-
             </div>
 
             <div className="compact-quick-actions">
-
               <button
-                onClick={
-                  onSavedResources
-                }
+                onClick={onSavedResources}
                 type="button"
               >
-                <span aria-hidden="true">
-                  ＋
-                </span>
-
+                <span aria-hidden="true">＋</span>
                 Save Resource
               </button>
 
@@ -1327,10 +1352,7 @@ function Dashboard({
                 onClick={onCollections}
                 type="button"
               >
-                <span aria-hidden="true">
-                  ▱
-                </span>
-
+                <span aria-hidden="true">▱</span>
                 Create Collection
               </button>
 
@@ -1338,21 +1360,25 @@ function Dashboard({
                 onClick={onNotes}
                 type="button"
               >
-                <span aria-hidden="true">
-                  ✎
-                </span>
-
+                <span aria-hidden="true">✎</span>
                 Add Note
               </button>
-
             </div>
-
           </section>
 
+          {/* Extension banner at the bottom */}
+          <ChromeExtensionBanner
+            onLearnMore={openInstallGuide}
+          />
         </section>
-
       </main>
 
+      {/* Installation guide modal */}
+      {showInstallGuide && (
+        <ExtensionInstallGuide
+          onClose={closeInstallGuide}
+        />
+      )}
     </div>
   );
 }

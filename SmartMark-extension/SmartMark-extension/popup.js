@@ -3,8 +3,8 @@
 // ======================================================
 
 // Backend API
-// Your FastAPI backend is running on port 8000
-const API_BASE = "https://stay-affects-registrar-cheap.trycloudflare.com/api";
+const API_BASE =
+  "https://guitar-except-divorce-mem.trycloudflare.com/api";
 
 // SmartMark React frontend
 const APP_URL = "http://localhost:5173";
@@ -22,14 +22,16 @@ const statusEl = document.getElementById("status");
 // ======================================================
 
 function setStatus(message) {
-  statusEl.textContent = message;
+  if (statusEl) {
+    statusEl.textContent = message;
+  }
 }
 
 // ======================================================
 // GET JWT TOKEN
 // ======================================================
-// First try to get the token from an open SmartMark tab.
-// If that fails, use the cached token from chrome.storage.local.
+// First check an open SmartMark tab.
+// If unavailable, use the cached token.
 // ======================================================
 
 async function getToken() {
@@ -42,63 +44,62 @@ async function getToken() {
       if (!tab.id) continue;
 
       try {
-        const [{ result }] = await chrome.scripting.executeScript({
+        const results = await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: (key) => window.localStorage.getItem(key),
           args: [TOKEN_KEY],
         });
 
-        if (result) {
-          // Keep a cached copy for the extension
+        const token = results?.[0]?.result;
+
+        if (token) {
           await chrome.storage.local.set({
-            [TOKEN_KEY]: result,
+            [TOKEN_KEY]: token,
           });
 
-          return result;
+          return token;
         }
-      } catch (err) {
-        // This tab cannot be accessed.
-        // Try the next SmartMark tab.
+      } catch (error) {
+        console.warn(
+          "Could not read token from this SmartMark tab:",
+          error
+        );
       }
     }
+  } catch (error) {
+    console.error("Could not check SmartMark tabs:", error);
+  }
 
-    // If no open tab contains the token,
-    // use the cached token.
+  // Use cached token if no token was found in an open tab.
+  try {
     const stored = await chrome.storage.local.get(TOKEN_KEY);
-
     return stored[TOKEN_KEY] || null;
   } catch (error) {
-    console.error("Token error:", error);
-
-    const stored = await chrome.storage.local.get(TOKEN_KEY);
-
-    return stored[TOKEN_KEY] || null;
+    console.error("Could not read cached token:", error);
+    return null;
   }
 }
 
 // ======================================================
-// GET PAGE DESCRIPTION
-// ======================================================
-// Reads the current webpage's meta description.
+// GET CURRENT PAGE DESCRIPTION
 // ======================================================
 
 async function getPageDescription(tabId) {
   try {
-    const [{ result }] = await chrome.scripting.executeScript({
+    const results = await chrome.scripting.executeScript({
       target: { tabId },
-
       func: () => {
         const meta =
           document.querySelector('meta[name="description"]') ||
           document.querySelector('meta[property="og:description"]');
 
-        return meta ? meta.content : "";
+        return meta?.content || "";
       },
     });
 
-    return result || "";
-  } catch (err) {
-    console.log("Could not read page description:", err);
+    return results?.[0]?.result || "";
+  } catch (error) {
+    console.warn("Could not read page description:", error);
     return "";
   }
 }
@@ -107,172 +108,137 @@ async function getPageDescription(tabId) {
 // SAVE CURRENT PAGE
 // ======================================================
 
-saveBtn.addEventListener("click", async () => {
-  saveBtn.disabled = true;
+if (saveBtn) {
+  saveBtn.addEventListener("click", async () => {
+    saveBtn.disabled = true;
+    setStatus("Saving...");
 
-  setStatus("Saving...");
-
-  try {
-    // --------------------------------------------------
-    // 1. Get current browser tab
-    // --------------------------------------------------
-
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-
-    if (!tab || !tab.url || !/^https?:\/\//i.test(tab.url)) {
-      setStatus("This page can't be saved.");
-      return;
-    }
-
-    console.log("Current page:", tab.url);
-
-    // --------------------------------------------------
-    // 2. Get JWT token
-    // --------------------------------------------------
-
-    const token = await getToken();
-
-    if (!token) {
-      setStatus("Please log in to SmartMark first.");
-
-      chrome.tabs.create({
-        url: APP_URL,
+    try {
+      // 1. Get the active browser tab
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
       });
 
-      return;
-    }
-
-    console.log("JWT token found.");
-
-    // --------------------------------------------------
-    // 3. Get page description
-    // --------------------------------------------------
-
-    const description = await getPageDescription(tab.id);
-
-    // --------------------------------------------------
-    // 4. Send resource to FastAPI backend
-    // --------------------------------------------------
-    //
-    // IMPORTANT:
-    //
-    // API_BASE = http://localhost:8000/api
-    //
-    // Therefore endpoint is:
-    //
-    // http://localhost:8000/api/resources/
-    //
-    // NOT:
-    //
-    // http://localhost:8000/api/api/resources/
-    // --------------------------------------------------
-
-    const response = await fetch(`${API_BASE}/resources/`, {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-
-      body: JSON.stringify({
-        url: tab.url,
-        title: tab.title || "",
-        description: description || "",
-      }),
-    });
-
-    console.log("Backend response status:", response.status);
-
-    // --------------------------------------------------
-    // 5. Authentication error
-    // --------------------------------------------------
-
-    if (response.status === 401 || response.status === 403) {
-      await chrome.storage.local.remove(TOKEN_KEY);
-
-      setStatus("Session expired. Please log in again.");
-
-      chrome.tabs.create({
-        url: APP_URL,
-      });
-
-      return;
-    }
-
-    // --------------------------------------------------
-    // 6. Other backend errors
-    // --------------------------------------------------
-
-    if (!response.ok) {
-      let detail = "";
-
-      try {
-        const errorData = await response.json();
-
-        if (typeof errorData.detail === "string") {
-          detail = errorData.detail;
-        } else if (errorData.detail) {
-          detail = JSON.stringify(errorData.detail);
-        }
-      } catch (e) {
-        // Response was not JSON
+      // Validate the current page URL
+      if (!tab?.id || !tab.url || !/^https?:\/\//i.test(tab.url)) {
+        setStatus("This page can't be saved.");
+        return;
       }
 
-      console.error(
-        "Save failed:",
-        response.status,
-        detail
-      );
+      console.log("Current page:", tab.url);
+
+      // 2. Get the user's JWT token
+      const token = await getToken();
+
+      if (!token) {
+        setStatus("Please log in to SmartMark first.");
+
+        await chrome.tabs.create({
+          url: APP_URL,
+        });
+
+        return;
+      }
+
+      // 3. Get the page description
+      const description = await getPageDescription(tab.id);
+
+      // 4. Send the resource to the backend
+      // API_BASE already ends in /api.
+      // Final endpoint: /api/resources/
+      const response = await fetch(`${API_BASE}/resources/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          url: tab.url,
+          title: tab.title || "",
+          description: description || "",
+        }),
+      });
+
+      console.log("Backend response status:", response.status);
+
+      // 5. Handle authentication errors
+      if (response.status === 401 || response.status === 403) {
+        await chrome.storage.local.remove(TOKEN_KEY);
+
+        setStatus("Session expired. Please log in again.");
+
+        await chrome.tabs.create({
+          url: APP_URL,
+        });
+
+        return;
+      }
+
+      // 6. Handle other backend errors
+      if (!response.ok) {
+        let detail = "";
+
+        try {
+          const errorData = await response.json();
+
+          if (typeof errorData.detail === "string") {
+            detail = errorData.detail;
+          } else if (errorData.detail) {
+            detail = JSON.stringify(errorData.detail);
+          }
+        } catch (error) {
+          // The server may return a non-JSON error response.
+        }
+
+        console.error(
+          "Save failed:",
+          response.status,
+          detail
+        );
+
+        setStatus(
+          `Could not save (${response.status}). ${
+            detail || "Please try again."
+          }`
+        );
+
+        return;
+      }
+
+      // 7. Handle successful save
+      const data = await response.json();
+
+      console.log("Saved resource:", data);
+
+      const savedTitle =
+        data.resource?.title ||
+        data.title ||
+        tab.title ||
+        "page";
+
+      setStatus(`Saved: ${savedTitle}`);
+    } catch (error) {
+      // Network or connection error
+      console.error("SmartMark extension error:", error);
 
       setStatus(
-        `Could not save (${response.status}). ${detail}`
+        "Could not reach the server. Check your backend and API URL."
       );
-
-      return;
+    } finally {
+      saveBtn.disabled = false;
     }
-
-    // --------------------------------------------------
-    // 7. Successfully saved
-    // --------------------------------------------------
-
-    const data = await response.json();
-
-    console.log("Saved resource:", data);
-
-    const savedTitle =
-      data.resource?.title ||
-      data.title ||
-      tab.title ||
-      "page";
-
-    setStatus(`Saved: ${savedTitle}`);
-
-  } catch (error) {
-    // --------------------------------------------------
-    // Network / connection error
-    // --------------------------------------------------
-
-    console.error("SmartMark extension error:", error);
-
-    setStatus(
-      "Could not reach the server. Is the backend running?"
-    );
-
-  } finally {
-    saveBtn.disabled = false;
-  }
-});
-
-// ======================================================
-// VIEW SMARTMARK
-// ======================================================
-
-viewBtn.addEventListener("click", () => {
-  chrome.tabs.create({
-    url: APP_URL,
   });
-});
+}
+
+// ======================================================
+// OPEN SMARTMARK
+// ======================================================
+
+if (viewBtn) {
+  viewBtn.addEventListener("click", () => {
+    chrome.tabs.create({
+      url: APP_URL,
+    });
+  });
+}

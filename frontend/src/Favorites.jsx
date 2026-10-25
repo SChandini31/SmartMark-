@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./Favorites.css";
 import Sidebar from "./Sidebar";
 import ThemeToggle from "./ThemeToggle";
-import SemanticSearch from "./SemanticSearch";
 import Notifications from "./Notifications";
 import { apiRequest } from "./authApi";
 
@@ -45,6 +44,7 @@ function Favorites({
   onNotes,
   onRecent,
   onHelpSupport,
+  onSemanticSearch,
   onLogout,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -117,6 +117,7 @@ function Favorites({
         onRecent={onRecent}
         onSettings={onSettings}
         onHelpSupport={onHelpSupport}
+        onSemanticSearch={onSemanticSearch}
         onLogout={onLogout}
       />
 
@@ -181,9 +182,6 @@ function Favorites({
           <div className="favorites-page-heading">
 
             <div>
-              <p className="favorites-page-label">
-                YOUR FAVORITES
-              </p>
 
               <h1>Favorites</h1>
 
@@ -208,20 +206,17 @@ function Favorites({
           {/* Search */}
           <div className="favorites-toolbar">
 
-            <div className="favorites-search-box">
-              <span>⌕</span>
+            
+<div className="favorites-search-box">
+  <span>⌕</span>
 
-              <input
-                type="text"
-                placeholder="Search your favorites..."
-                value={searchTerm}
-                onChange={(e) =>
-                  setSearchTerm(e.target.value)
-                }
-              />
-              <SemanticSearch query={searchTerm} />
-            </div>
-
+  <input
+    type="text"
+    placeholder="Search your favorites..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+</div>
             <button className="favorites-filter-btn">
               ☰ Filter
             </button>

@@ -11,7 +11,7 @@
   ],
   "host_permissions": [
     "http://localhost:5173/*",
-    "https://stay-affects-registrar-cheap.trycloudflare.com/*"
+    "https://guitar-except-divorce-mem.trycloudflare.com/*"
   ],
   "action": {
     "default_popup": "popup.html"
