@@ -7,9 +7,9 @@ import React, {
 
 import "./Dashboard.css";
 import Sidebar from "./Sidebar";
-import ThemeToggle from "./ThemeToggle";
-import Notifications from "./Notifications";
+import TopBar from "./TopBar";
 import { apiRequest } from "./authApi";
+import useProfileName from "./useProfileName";
 
 const resourceTypeDetails = [
   { key: "article", label: "Article", color: "#6c5ce7" },
@@ -802,12 +802,15 @@ function Dashboard({
   sidebarOpen = true,
   onToggleSidebar,
 }) {
+  const profileName = useProfileName();
   const [greeting] = useState(() => getTimeGreeting());
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [updatingFavoriteIds, setUpdatingFavoriteIds] = useState(
+    () => new Set()
+  );
 
   const [showExtensionPopup, setShowExtensionPopup] =
     useState(true);
@@ -859,6 +862,64 @@ function Dashboard({
     loadDashboard();
   }, [loadDashboard]);
 
+  const handleToggleFavorite = async (resource) => {
+    if (updatingFavoriteIds.has(resource.id)) return;
+
+    setErrorMessage("");
+    setUpdatingFavoriteIds((current) => new Set(current).add(resource.id));
+
+    try {
+      const result = await apiRequest(
+        `resources/${resource.id}/favorite`,
+        { method: "PATCH" }
+      );
+      const responseResource = result?.resource ?? result;
+      const isFavorite =
+        typeof responseResource?.favorite === "boolean"
+          ? responseResource.favorite
+          : typeof responseResource?.is_favorite === "boolean"
+            ? responseResource.is_favorite
+            : !resource.is_favorite;
+
+      setDashboardData((previous) => {
+        if (!previous) return previous;
+
+        const currentResource = previous.recently_saved.find(
+          (item) => item.id === resource.id
+        );
+        const previousFavorite = Boolean(currentResource?.is_favorite);
+
+        return {
+          ...previous,
+          recently_saved: previous.recently_saved.map((item) =>
+            item.id === resource.id
+              ? { ...item, is_favorite: isFavorite }
+              : item
+          ),
+          stats: {
+            ...previous.stats,
+            favorites: Math.max(
+              0,
+              previous.stats.favorites +
+                Number(isFavorite) -
+                Number(previousFavorite)
+            ),
+          },
+        };
+      });
+    } catch (error) {
+      setErrorMessage(
+        error?.message || "Unable to update favorites."
+      );
+    } finally {
+      setUpdatingFavoriteIds((current) => {
+        const next = new Set(current);
+        next.delete(resource.id);
+        return next;
+      });
+    }
+  };
+
   const displayedResources = useMemo(
     () => dashboardData?.recently_saved?.slice(0, 5) ?? [],
     [dashboardData]
@@ -873,7 +934,6 @@ function Dashboard({
     tags: onTags,
     notes: onNotes,
     favorites: onFavorites,
-    forgotten: onSavedResources,
   };
 
   const metrics = stats
@@ -908,26 +968,8 @@ function Dashboard({
           icon: "♡",
           destination: "favorites",
         },
-        {
-          label: "Forgotten Resources",
-          value: stats.forgotten_resources,
-          icon: "↻",
-          destination: "forgotten",
-        },
       ]
     : [];
-
-  const normalizedSearch =
-    searchQuery.trim().toLowerCase();
-
-  const filteredResources = displayedResources.filter(
-    (resource) =>
-      !normalizedSearch ||
-      resource.title.toLowerCase().includes(normalizedSearch) ||
-      (resource.source_domain || "")
-        .toLowerCase()
-        .includes(normalizedSearch)
-  );
 
   return (
     <div className="dashboard-container">
@@ -941,7 +983,6 @@ function Dashboard({
         onFavorites={onFavorites}
         onRecent={onRecent}
         onSettings={onSettings}
-        onHelpSupport={onHelpSupport}
         onSemanticSearch={onSemanticSearch}
         onLogout={onLogout}
         sidebarOpen={sidebarOpen}
@@ -949,56 +990,20 @@ function Dashboard({
       />
 
       <main className="dashboard-main">
-        <header className="dashboard-header">
-          <div className="header-search">
-            <span aria-hidden="true">⌕</span>
-
-            <input
-              type="text"
-              placeholder="Search your saved knowledge..."
-              value={searchQuery}
-              onChange={(event) =>
-                setSearchQuery(event.target.value)
-              }
-              aria-label="Search your saved knowledge"
-            />
-          </div>
-
-          <div className="header-actions">
-            <Notifications
-              onSavedResources={onSavedResources}
-              onCollections={onCollections}
-              onTags={onTags}
-            />
-
-            <ThemeToggle />
-
-            <div className="header-divider" />
-
-            <button
-              aria-label="Open profile settings"
-              className="header-profile profile-settings-trigger"
-              onClick={onSettings}
-              type="button"
-            >
-              <div className="profile-avatar small">M</div>
-
-              <div>
-                <strong>Monika</strong>
-                <span>My Account</span>
-              </div>
-
-              <span className="arrow">⌄</span>
-            </button>
-          </div>
-        </header>
+        <TopBar
+          onSavedResources={onSavedResources}
+          onCollections={onCollections}
+          onTags={onTags}
+          onHelpSupport={onHelpSupport}
+          onSettings={onSettings}
+        />
 
         <section className="dashboard-content dashboard-redesign">
           {/* Welcome heading and both buttons */}
           <div className="welcome-section">
             <div>
               <h1>
-                {greeting}, Monika{" "}
+                {greeting}, {profileName}{" "}
                 <span aria-hidden="true">👋</span>
               </h1>
 
@@ -1175,9 +1180,9 @@ function Dashboard({
                   </button>
                 </div>
 
-                {filteredResources.length ? (
+                {displayedResources.length ? (
                   <ul className="recently-saved-list">
-                    {filteredResources.map((resource) => {
+                    {displayedResources.map((resource) => {
                       const resourceUrl =
                         typeof resource.url === "string" &&
                         resource.url.trim()
@@ -1254,34 +1259,19 @@ function Dashboard({
   className={`recently-saved-favorite ${
     resource.is_favorite ? "is-favorite" : ""
   }`}
+  aria-pressed={resource.is_favorite}
   aria-label={
     resource.is_favorite
       ? "Remove from favorites"
       : "Add to favorites"
   }
+  disabled={updatingFavoriteIds.has(resource.id)}
   title={
     resource.is_favorite
       ? "Remove from favorites"
       : "Add to favorites"
   }
-  onClick={() => {
-    setDashboardData((previous) => ({
-      ...previous,
-      recently_saved: previous.recently_saved.map((item) =>
-        item.id === resource.id
-          ? { ...item, is_favorite: !item.is_favorite }
-          : item
-      ),
-      stats: {
-        ...previous.stats,
-        favorites: Math.max(
-          0,
-          previous.stats.favorites +
-            (resource.is_favorite ? -1 : 1)
-        ),
-      },
-    }));
-  }}
+  onClick={() => handleToggleFavorite(resource)}
 >
   {resource.is_favorite ? "★" : "☆"}
 </button>
@@ -1313,9 +1303,7 @@ function Dashboard({
                   </ul>
                 ) : (
                   <p className="dashboard-empty-state">
-                    {normalizedSearch
-                      ? "No recent resources match your search."
-                      : "Save a resource and it will appear here."}
+                    Save a resource and it will appear here.
                   </p>
                 )}
               </section>

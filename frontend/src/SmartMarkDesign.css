@@ -1,0 +1,327 @@
+:root {
+  --sm-ui-font: "Times New Roman", Times, serif;
+  --sm-ui-ink: #292747;
+  --sm-ui-muted: #777c93;
+  --sm-ui-line: rgba(102, 105, 160, 0.14);
+  --sm-ui-surface: rgba(255, 255, 255, 0.97);
+  --sm-ui-shadow: 0 7px 22px rgba(40, 39, 91, 0.045);
+  --sm-ui-radius: 14px;
+  --sm-page-background:
+    radial-gradient(ellipse at 88% 0%, rgba(112, 91, 218, 0.14), transparent 32%),
+    radial-gradient(ellipse at 42% 100%, rgba(106, 115, 218, 0.08), transparent 38%),
+    linear-gradient(135deg, #fbfaff 0%, #f5f5fc 52%, #efeffb 100%);
+}
+
+:root[data-theme="dark"] {
+  --sm-ui-ink: #e7e8f1;
+  --sm-ui-muted: #b3b6c9;
+  --sm-ui-line: rgba(180, 182, 210, 0.16);
+  --sm-ui-surface: rgba(36, 38, 53, 0.96);
+  --sm-ui-shadow: 0 7px 22px rgba(0, 0, 0, 0.16);
+}
+
+#root .saved-page,
+#root .collections-container,
+#root .tags-page,
+#root .notes-container,
+#root .favorites-container,
+#root .semantic-search-page,
+#root .help-support-container,
+#root .settings-container {
+  color: var(--sm-ui-ink);
+  font-family: var(--sm-ui-font);
+  font-size: 15px;
+  line-height: 1.55;
+  background: var(--sm-page-background);
+}
+
+#root .saved-page *,
+#root .collections-container *,
+#root .tags-page *,
+#root .notes-container *,
+#root .favorites-container *,
+#root .semantic-search-page *,
+#root .help-support-container *,
+#root .settings-container * {
+  font-family: var(--sm-ui-font);
+}
+
+#root .saved-heading h1,
+#root .page-heading h1,
+#root .tags-header h1,
+#root .notes-page-heading h1,
+#root .favorites-page-heading h1,
+#root .semantic-search-page-heading h1,
+#root .help-page-heading h1,
+#root .settings-heading h1 {
+  margin: 0;
+  color: var(--sm-ui-ink);
+  background: linear-gradient(105deg, #24233e 0%, #4e48a9 58%, #7452ce 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: clamp(38px, 3vw, 48px);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -0.7px;
+}
+
+#root .saved-heading p,
+#root .page-heading .page-description,
+#root .tags-header > div > span,
+#root .notes-page-heading p,
+#root .favorites-page-heading p,
+#root .semantic-search-page-heading p,
+#root .help-page-heading > div > p:last-child,
+#root .settings-heading > div > p {
+  margin-top: 8px;
+  color: var(--sm-ui-muted);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+#root .saved-heading,
+#root .page-heading,
+#root .notes-page-heading,
+#root .favorites-page-heading,
+#root .tags-header,
+#root .settings-heading {
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+#root .favorites-page-heading {
+  align-items: flex-start;
+}
+
+#root .saved-heading > div:first-child {
+  text-align: left;
+}
+
+#root .saved-content,
+#root .collections-content,
+#root .favorites-content,
+#root .notes-content,
+#root .tags-content,
+#root .settings-content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 29px clamp(24px, 3vw, 48px) 56px;
+  box-sizing: border-box;
+}
+
+#root .saved-page .shared-sidebar ~ .saved-main,
+#root .collections-container .shared-sidebar ~ .collections-main,
+#root .favorites-container .shared-sidebar ~ .favorites-main,
+#root .notes-container .shared-sidebar ~ .notes-main,
+#root .tags-page .shared-sidebar ~ .tags-main,
+#root .settings-container .shared-sidebar ~ .settings-main,
+#root .help-support-container .shared-sidebar ~ .help-support-main,
+#root .semantic-search-page .shared-sidebar ~ .semantic-search-main {
+  width: calc(100% - var(--sidebar-width));
+  margin-left: var(--sidebar-width);
+}
+
+#root .notes-content {
+  word-spacing: normal;
+}
+
+#root .help-page-heading {
+  max-width: none;
+  padding: 29px clamp(24px, 3vw, 48px) 0;
+}
+
+#root .help-content-grid {
+  max-width: none;
+  padding: 25px clamp(24px, 3vw, 48px) 56px;
+}
+
+#root .saved-search,
+#root .header-search,
+#root .favorites-search-box,
+#root .notes-search-box,
+#root .tags-global-search,
+#root .help-search {
+  min-height: 44px;
+  border-radius: 10px;
+}
+
+#root .saved-search input,
+#root .header-search input,
+#root .favorites-search-box input,
+#root .notes-search-box input,
+#root .tags-global-search input,
+#root .help-search input {
+  font-family: var(--sm-ui-font);
+  font-size: 15px;
+}
+
+#root .saved-search:focus-within,
+#root .header-search:focus-within,
+#root .favorites-search-box:focus-within,
+#root .notes-search-box:focus-within,
+#root .tags-global-search:focus-within,
+#root .help-search:focus-within {
+  border-color: rgba(91, 84, 216, 0.48);
+  box-shadow: 0 0 0 3px rgba(91, 84, 216, 0.09);
+}
+
+#root .favorite-card,
+#root .note-card,
+#root .collection-card,
+#root .tag-card,
+#root .settings-card,
+#root .help-section,
+#root .semantic-search-hero,
+#root .semantic-search-result-card {
+  border-color: var(--sm-ui-line);
+  border-radius: var(--sm-ui-radius);
+  box-shadow: var(--sm-ui-shadow);
+}
+
+#root .favorite-card,
+#root .note-card,
+#root .collection-card,
+#root .tag-card,
+#root .settings-card,
+#root .help-section {
+  background-color: var(--sm-ui-surface);
+}
+
+#root .collections-grid,
+#root .favorites-grid,
+#root .notes-grid,
+#root .tags-grid,
+#root .semantic-search-result-list {
+  gap: 20px;
+}
+
+#root .favorite-card h3,
+#root .note-card h3,
+#root .collection-card h3,
+#root .tag-card h3,
+#root .saved-resource-card h3,
+#root .semantic-search-result-card h3 {
+  color: var(--sm-ui-ink);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+#root .favorites-list-heading h2,
+#root .notes-list-heading h2,
+#root .tags-list-heading h2,
+#root .settings-card-header h2,
+#root .help-section-heading h2,
+#root .semantic-search-results-header h2,
+#root .semantic-search-hero h2 {
+  color: var(--sm-ui-ink);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+#root .favorites-list-heading > div > span,
+#root .notes-list-heading > div > span,
+#root .tags-list-heading > span,
+#root .favorite-domain,
+#root .resource-metadata,
+#root .note-card-footer,
+#root .semantic-search-domain {
+  color: var(--sm-ui-muted);
+  font-size: 13px;
+}
+
+#root .add-resource-button,
+#root .create-collection-btn,
+#root .tag-create-btn,
+#root .create-note-btn,
+#root .save-settings-btn {
+  min-height: 48px;
+  padding: 11px 17px;
+  border-radius: 10px;
+  font-family: var(--sm-ui-font);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+#root .help-support-container .shared-sidebar ~ .help-support-main,
+#root .semantic-search-page .shared-sidebar ~ .semantic-search-main {
+  width: calc(100% - var(--sidebar-width));
+  margin-left: var(--sidebar-width);
+  transition: width 0.3s ease, margin-left 0.3s ease;
+}
+
+#root .semantic-search-main {
+  padding: 0;
+}
+
+#root .semantic-search-page-heading,
+#root .semantic-search-content {
+  width: 100%;
+  max-width: none;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: clamp(24px, 3vw, 48px);
+  padding-left: clamp(24px, 3vw, 48px);
+  box-sizing: border-box;
+}
+
+#root .semantic-search-page-heading {
+  margin-top: 29px;
+  margin-bottom: 26px;
+  padding-top: 0;
+}
+
+#root .semantic-search-content {
+  padding-bottom: 56px;
+}
+
+@media (max-width: 760px) {
+  #root .saved-heading h1,
+  #root .page-heading h1,
+  #root .tags-header h1,
+  #root .notes-page-heading h1,
+  #root .favorites-page-heading h1,
+  #root .semantic-search-page-heading h1,
+  #root .help-page-heading h1,
+  #root .settings-heading h1 {
+    font-size: 38px;
+  }
+
+  #root .semantic-search-page-heading {
+    margin-top: 24px;
+  }
+
+  #root .saved-content,
+  #root .collections-content,
+  #root .favorites-content,
+  #root .notes-content,
+  #root .tags-content,
+  #root .settings-content,
+  #root .help-page-heading,
+  #root .help-content-grid,
+  #root .semantic-search-page-heading,
+  #root .semantic-search-content {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  #root .saved-heading h1,
+  #root .page-heading h1,
+  #root .tags-header h1,
+  #root .notes-page-heading h1,
+  #root .favorites-page-heading h1,
+  #root .semantic-search-page-heading h1,
+  #root .help-page-heading h1,
+  #root .settings-heading h1 {
+    font-size: 30px;
+    letter-spacing: -0.4px;
+  }
+}

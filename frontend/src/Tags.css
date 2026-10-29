@@ -117,12 +117,21 @@
   padding: 36px 42px 50px;
 }
 
+.tags-page-search {
+  margin: 20px 0 24px;
+}
+
+.tags-page-search .tags-global-search {
+  width: min(440px, 100%);
+  box-sizing: border-box;
+}
+
 .tags-header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 25px;
-  margin-bottom: 28px;
+  margin-bottom: 0;
 }
 
 .tags-header p {

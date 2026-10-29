@@ -4,7 +4,7 @@
 
 // Backend API
 const API_BASE =
-  "https://guitar-except-divorce-mem.trycloudflare.com/api";
+  "http://127.0.0.1:8000/api";
 
 // SmartMark React frontend
 const APP_URL = "http://localhost:5173";

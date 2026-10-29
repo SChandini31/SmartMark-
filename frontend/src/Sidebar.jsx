@@ -24,7 +24,6 @@ function Sidebar({
   onRecent,
   onSemanticSearch,
   onSettings,
-  onHelpSupport,
   onLogout,
 
   sidebarOpen = true,
@@ -97,7 +96,6 @@ function Sidebar({
 
       {/* MAIN MENU */}
       <nav className="shared-sidebar-nav">
-        <p className="shared-sidebar-title">MENU</p>
 
         {menuItems.map((item) => (
           <button
@@ -128,16 +126,6 @@ function Sidebar({
         >
           <span className="shared-menu-icon">⚙</span>
           <span className="shared-menu-label">Settings</span>
-        </button>
-
-        <button
-          type="button"
-          className="shared-menu-item"
-          onClick={onHelpSupport}
-          title="Help & Support"
-        >
-          <span className="shared-menu-icon">❓</span>
-          <span className="shared-menu-label">Help &amp; Support</span>
         </button>
 
         <button

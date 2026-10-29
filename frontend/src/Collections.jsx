@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import "./Collections.css";
 import Sidebar from "./Sidebar";
-import ThemeToggle from "./ThemeToggle";
-import Notifications from "./Notifications";
+import TopBar from "./TopBar";
 import { apiRequest } from "./authApi";
 
 const collectionDecorations = [
@@ -126,10 +125,7 @@ function Collections({
   const filteredCollections = collections.filter((collection) => {
     const search = searchTerm.trim().toLowerCase();
 
-    return (
-      collection.name.toLowerCase().includes(search) ||
-      collection.description.toLowerCase().includes(search)
-    );
+    return collection.name.toLowerCase().includes(search);
   });
 
   const openCreateForm = (recommendedName = "") => {
@@ -340,50 +336,17 @@ function Collections({
         onSemanticSearch={onSemanticSearch}
         onRecent={onRecent}
         onSettings={onSettings}
-        onHelpSupport={onHelpSupport}
         onLogout={onLogout}
       />
 
       <main className="collections-main">
-        <header className="collections-header">
-          <div className="header-search">
-            <span>⌕</span>
-            <input
-              type="text"
-              placeholder="Search your collections..."
-              value={searchTerm}
-              onChange={(event) =>
-                setSearchTerm(event.target.value)
-              }
-            />
-          </div>
-
-          <div className="header-actions">
-            <Notifications
-              onSavedResources={onSavedResources}
-              onCollections={onCollections}
-              onTags={onTags}
-            />
-
-            <ThemeToggle />
-
-            <div className="header-divider" />
-
-            <button
-              aria-label="Open profile settings for Monika"
-              className="header-profile profile-settings-trigger"
-              onClick={onSettings}
-              type="button"
-            >
-              <div className="profile-avatar small">M</div>
-              <div>
-                <strong>Monika</strong>
-                <span>My Account</span>
-              </div>
-              <span className="arrow">⌄</span>
-            </button>
-          </div>
-        </header>
+        <TopBar
+          onSavedResources={onSavedResources}
+          onCollections={onCollections}
+          onTags={onTags}
+          onHelpSupport={onHelpSupport}
+          onSettings={onSettings}
+        />
 
         <section className="collections-content">
           <div className="page-heading">
@@ -403,6 +366,18 @@ function Collections({
               <span>＋</span>
               Create Collection
             </button>
+          </div>
+
+          <div className="collections-page-search">
+            <div className="header-search">
+              <span>⌕</span>
+              <input
+                type="text"
+                placeholder="Search collections by name..."
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+              />
+            </div>
           </div>
 
           {statusMessage && (
@@ -644,25 +619,6 @@ function Collections({
               </p>
             </div>
 
-            <div className="collection-actions">
-              <span className="sort-btn">↕ Sort by Recent</span>
-
-              <button
-                aria-label="Grid view"
-                className="view-btn active"
-                type="button"
-              >
-                ▦
-              </button>
-
-              <button
-                aria-label="List view"
-                className="view-btn"
-                type="button"
-              >
-                ☷
-              </button>
-            </div>
           </div>
 
           {/* Collections grid */}

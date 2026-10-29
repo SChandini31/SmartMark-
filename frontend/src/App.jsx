@@ -102,7 +102,18 @@ function AppContent() {
   const sidebarProps = {
     onDashboard: () => navigate("/dashboard"),
     onSavedResources: () => navigate("/saved-resources"),
-    onCollections: () => navigate("/collections"),
+    onCollections: (suggestedName) => {
+      const name =
+        typeof suggestedName === "string" ? suggestedName.trim() : "";
+
+      if (name) {
+        const params = new URLSearchParams({ createCollection: name });
+        navigate(`/collections?${params.toString()}`);
+        return;
+      }
+
+      navigate("/collections");
+    },
     onTags: () => navigate("/tags"),
     onNotes: () => navigate("/notes"),
     onFavorites: () => navigate("/favorites"),

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./Recent.css";
 
 import Sidebar from "./Sidebar";
-import ThemeToggle from "./ThemeToggle";
-import Notifications from "./Notifications";
+import TopBar from "./TopBar";
 import { apiRequest } from "./authApi";
 
 /* Convert API resource data into the format used by this page */
@@ -181,53 +180,17 @@ function Recent({
         onNotes={onNotes}
         onFavorites={onFavorites}
         onSettings={onSettings}
-        onHelpSupport={onHelpSupport}
         onLogout={onLogout}
       />
 
       <main className="recent-main">
-        {/* Header */}
-        <header className="recent-header">
-          <div className="recent-header-search">
-            <span>⌕</span>
-
-            <input
-              type="text"
-              placeholder="Search your saved knowledge..."
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              aria-label="Search your saved knowledge"
-            />
-          </div>
-
-          <div className="recent-header-actions">
-            <Notifications
-              onSavedResources={onSavedResources}
-              onCollections={onCollections}
-              onTags={onTags}
-            />
-
-            <ThemeToggle />
-
-            <div className="recent-header-divider" />
-
-            <button
-              aria-label="Open profile settings"
-              className="recent-header-profile profile-settings-trigger"
-              onClick={onSettings}
-              type="button"
-            >
-              <div className="recent-profile-avatar small">M</div>
-
-              <div>
-                <strong>Monika</strong>
-                <span>My Account</span>
-              </div>
-
-              <span className="recent-profile-arrow">⌄</span>
-            </button>
-          </div>
-        </header>
+        <TopBar
+          onSavedResources={onSavedResources}
+          onCollections={onCollections}
+          onTags={onTags}
+          onHelpSupport={onHelpSupport}
+          onSettings={onSettings}
+        />
 
         {/* Main content */}
         <section className="recent-content">

@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./Tags.css";
 import Sidebar from "./Sidebar";
-import ThemeToggle from "./ThemeToggle";
-import Notifications from "./Notifications";
+import TopBar from "./TopBar";
 import { apiRequest } from "./authApi";
 
 const tagColors = ["blue", "purple", "cyan", "green", "orange", "pink", "yellow", "indigo"];
@@ -70,7 +69,7 @@ function Tags({
   }, []);
 
   const filteredTags = useMemo(
-    () => tags.filter((tag) => tag.name.toLowerCase().includes(searchTerm.toLowerCase())),
+    () => tags.filter((tag) => tag.name.toLowerCase().includes(searchTerm.trim().toLowerCase())),
     [tags, searchTerm]
   );
 
@@ -171,41 +170,17 @@ function Tags({
         onSemanticSearch={onSemanticSearch}
         onRecent={onRecent}
         onSettings={onSettings}
-        onHelpSupport={onHelpSupport}
         onLogout={onLogout}
       />
 
       <main className="tags-main">
-        <header className="tags-topbar">
-          
-<div className="tags-global-search">
-  <span aria-hidden="true">⌕</span>
-  <input
-    aria-label="Search your saved knowledge"
-    placeholder="Search your saved knowledge..."
-    value={searchTerm}
-    onChange={(event) => setSearchTerm(event.target.value)}
-  />
-</div>
-          <div className="tags-topbar-actions">
-            <Notifications
-              onSavedResources={onSavedResources}
-              onCollections={onCollections}
-              onTags={onTags}
-            />
-            <ThemeToggle />
-            <button
-              aria-label="Open profile settings for Monika"
-              className="tags-topbar-profile"
-              onClick={onSettings}
-              type="button"
-            >
-              <span className="tags-topbar-avatar">M</span>
-              <span><strong>Monika</strong><small>My Account</small></span>
-              <span aria-hidden="true">⌄</span>
-            </button>
-          </div>
-        </header>
+        <TopBar
+          onSavedResources={onSavedResources}
+          onCollections={onCollections}
+          onTags={onTags}
+          onHelpSupport={onHelpSupport}
+          onSettings={onSettings}
+        />
 
         <section className="tags-content">
           <header className="tags-header">
@@ -228,6 +203,18 @@ function Tags({
               Create Tag
             </button>
           </header>
+
+          <div className="tags-page-search">
+            <div className="tags-global-search">
+              <span aria-hidden="true">⌕</span>
+              <input
+                aria-label="Search your tags"
+                placeholder="Search your tags..."
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+              />
+            </div>
+          </div>
 
           {statusMessage && <p className="tag-api-status" role="status">{statusMessage}</p>}
           {errorMessage && !isFormOpen && !selectedTag && <p className="tag-api-error" role="alert">{errorMessage}</p>}

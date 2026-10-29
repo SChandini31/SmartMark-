@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Settings.css";
 import Sidebar from "./Sidebar";
+import TopBar from "./TopBar";
 import { apiRequest } from "./authApi";
 
 const defaultSettings = {
@@ -247,34 +248,17 @@ function Settings({
         onRecent={onRecent}
         onSemanticSearch={onSemanticSearch}
         onSettings={onSettings}
-        onHelpSupport={onHelpSupport}
         onLogout={onLogout}
       />
 
       <main className="settings-main">
-        {/* Header */}
-        <header className="settings-header">
-          <div className="header-actions">
-            <button
-              aria-label={`Profile settings for ${settings.name}`}
-              className="header-profile profile-settings-trigger"
-              onClick={onSettings}
-              type="button"
-            >
-              <div className="profile-avatar small">
-                {settings.name.trim().charAt(0).toUpperCase() ||
-                  "M"}
-              </div>
-
-              <div>
-                <strong>{settings.name}</strong>
-                <span>My Account</span>
-              </div>
-
-              <span className="arrow">⌄</span>
-            </button>
-          </div>
-        </header>
+        <TopBar
+          onSavedResources={onSavedResources}
+          onCollections={onCollections}
+          onTags={onTags}
+          onHelpSupport={onHelpSupport}
+          onSettings={onSettings}
+        />
 
         <div className="settings-content">
           {/* Page heading */}

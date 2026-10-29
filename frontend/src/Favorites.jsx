@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Favorites.css";
 import Sidebar from "./Sidebar";
-import ThemeToggle from "./ThemeToggle";
-import Notifications from "./Notifications";
+import TopBar from "./TopBar";
 import { apiRequest } from "./authApi";
 
 function toFavoriteResource(resource) {
@@ -76,16 +75,8 @@ function Favorites({
   }, []);
 
   const filteredFavorites = favorites.filter((item) => {
-    const search = searchTerm.toLowerCase();
-
-    return (
-      item.title.toLowerCase().includes(search) ||
-      item.description.toLowerCase().includes(search) ||
-      item.domain.toLowerCase().includes(search) ||
-      item.tags.some((tag) =>
-        tag.toLowerCase().includes(search)
-      )
-    );
+    const search = searchTerm.trim().toLowerCase();
+    return item.title.toLowerCase().includes(search);
   });
 
   const removeFavorite = async (resource) => {
@@ -116,64 +107,19 @@ function Favorites({
         onNotes={onNotes}
         onRecent={onRecent}
         onSettings={onSettings}
-        onHelpSupport={onHelpSupport}
         onSemanticSearch={onSemanticSearch}
         onLogout={onLogout}
       />
 
       {/* ================= MAIN ================= */}
       <main className="favorites-main">
-
-        {/* Header */}
-        <header className="favorites-header">
-
-          <div className="favorites-header-search">
-            <span>⌕</span>
-
-            <input
-              type="text"
-              placeholder="Search your saved knowledge..."
-            />
-
-          </div>
-
-          <div className="favorites-header-actions">
-
-            <Notifications
-              onSavedResources={onSavedResources}
-              onCollections={onCollections}
-              onTags={onTags}
-            />
-
-            <ThemeToggle />
-
-            <div className="favorites-header-divider"></div>
-
-            <button
-              aria-label="Open profile settings for Monika"
-              className="favorites-header-profile profile-settings-trigger"
-              onClick={onSettings}
-              type="button"
-            >
-
-              <div className="favorites-profile-avatar small">
-                M
-              </div>
-
-              <div>
-                <strong>Monika</strong>
-                <span>My Account</span>
-              </div>
-
-              <span className="favorites-profile-arrow">
-                ⌄
-              </span>
-
-            </button>
-
-          </div>
-        </header>
-
+        <TopBar
+          onSavedResources={onSavedResources}
+          onCollections={onCollections}
+          onTags={onTags}
+          onHelpSupport={onHelpSupport}
+          onSettings={onSettings}
+        />
 
         {/* Content */}
         <section className="favorites-content">
@@ -212,20 +158,11 @@ function Favorites({
 
   <input
     type="text"
-    placeholder="Search your favorites..."
+    placeholder="Search favorites by title..."
     value={searchTerm}
     onChange={(e) => setSearchTerm(e.target.value)}
   />
 </div>
-            <button className="favorites-filter-btn">
-              ☰ Filter
-            </button>
-
-            <button className="favorites-sort-btn">
-              Latest
-              <span>⌄</span>
-            </button>
-
           </div>
 
 

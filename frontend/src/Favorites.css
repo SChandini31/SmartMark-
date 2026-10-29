@@ -380,6 +380,8 @@
   border: none;
   outline: none;
   background: transparent;
+  color: #303149;
+  -webkit-text-fill-color: currentColor;
   font-size: 14.3px;
 }
 

@@ -320,6 +320,15 @@
   padding: 38px 42px 60px;
 }
 
+.collections-page-search {
+  margin: 22px 0 24px;
+}
+
+.collections-page-search .header-search {
+  width: min(430px, 100%);
+  box-sizing: border-box;
+}
+
 
 /* Page Heading */
 

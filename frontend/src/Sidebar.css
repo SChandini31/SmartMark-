@@ -62,13 +62,29 @@
    SIDEBAR SCROLLBAR
    ========================================================= */
 
-.shared-sidebar::-webkit-scrollbar {
+/* Custom scrollbar for sidebar navigation */
+.shared-sidebar-nav {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(97, 90, 198, 0.25) transparent;
+}
+
+.shared-sidebar-nav::-webkit-scrollbar {
   width: 5px;
 }
 
-.shared-sidebar::-webkit-scrollbar-thumb {
-  border-radius: 6px;
-  background: rgba(97, 90, 198, 0.22);
+.shared-sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.shared-sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(97, 90, 198, 0.25);
+  border-radius: 10px;
+}
+
+.shared-sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(97, 90, 198, 0.45);
 }
 
 /* =========================================================

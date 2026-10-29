@@ -1,0 +1,176 @@
+.smartmark-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 clamp(20px, 3vw, 40px);
+  border-bottom: 1px solid #e6e8f0;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 3px 14px rgba(39, 40, 90, 0.035);
+  box-sizing: border-box;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.smartmark-topbar-welcome {
+  color: #5b56ce;
+  font-size: 21px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: -0.25px;
+}
+
+.smartmark-topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.smartmark-topbar-help {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #656c7c;
+  cursor: pointer;
+  font: inherit;
+  font-size: 18px;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.smartmark-topbar-help:hover {
+  transform: translateY(-1px);
+  background: rgba(94, 88, 219, 0.09);
+  color: #514fc8;
+}
+
+.smartmark-topbar-help:focus-visible,
+.smartmark-topbar-profile:focus-visible {
+  outline: 3px solid rgba(91, 84, 216, 0.24);
+  outline-offset: 2px;
+}
+
+.smartmark-topbar-divider {
+  width: 1px;
+  height: 32px;
+  margin: 0 2px;
+  background: #e2e4ec;
+}
+
+.smartmark-topbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 4px 0 4px 2px;
+  border: 0;
+  background: transparent;
+  color: #292a43;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.smartmark-topbar-avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6558d9, #8867df);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.smartmark-topbar-profile-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.smartmark-topbar-profile-copy strong {
+  overflow: hidden;
+  color: #292a43;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.smartmark-topbar-profile-copy > span,
+.smartmark-topbar-profile-arrow {
+  color: #85899c;
+  font-size: 11px;
+}
+
+.smartmark-topbar-profile-arrow {
+  margin-left: 2px;
+  font-size: 15px;
+}
+
+:root[data-theme="dark"] .smartmark-topbar {
+  border-bottom-color: var(--theme-border, #393b4f);
+  background: rgba(32, 34, 48, 0.96);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
+}
+
+:root[data-theme="dark"] .smartmark-topbar-welcome,
+:root[data-theme="dark"] .smartmark-topbar-profile,
+:root[data-theme="dark"] .smartmark-topbar-profile-copy strong {
+  color: var(--theme-text, #e7e8f1);
+}
+
+:root[data-theme="dark"] .smartmark-topbar-welcome {
+  color: #c8c4ff;
+}
+
+:root[data-theme="dark"] .smartmark-topbar-help {
+  color: #c3c5d3;
+}
+
+:root[data-theme="dark"] .smartmark-topbar-help:hover {
+  background: #303246;
+  color: #dedbff;
+}
+
+:root[data-theme="dark"] .smartmark-topbar-divider {
+  background: var(--theme-border, #393b4f);
+}
+
+:root[data-theme="dark"] .smartmark-topbar-profile-copy > span,
+:root[data-theme="dark"] .smartmark-topbar-profile-arrow {
+  color: var(--theme-muted, #b3b6c9);
+}
+
+@media (max-width: 600px) {
+  .smartmark-topbar {
+    min-height: 66px;
+    padding: 0 14px;
+  }
+
+  .smartmark-topbar-welcome {
+    font-size: 17px;
+  }
+
+  .smartmark-topbar-actions {
+    gap: 6px;
+  }
+
+  .smartmark-topbar-profile-copy,
+  .smartmark-topbar-profile-arrow,
+  .smartmark-topbar-divider {
+    display: none;
+  }
+}

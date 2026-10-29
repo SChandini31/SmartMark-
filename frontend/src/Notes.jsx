@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Notes.css";
 import Sidebar from "./Sidebar";
-import ThemeToggle from "./ThemeToggle";
-import Notifications from "./Notifications";
+import TopBar from "./TopBar";
 import { apiRequest } from "./authApi";
 
 const noteColors = ["purple", "blue", "green", "orange", "pink", "cyan"];
@@ -27,7 +26,6 @@ function getNoteStats(notes) {
       return !Number.isNaN(createdAt.getTime())
         && now - createdAt.getTime() <= 7 * 24 * 60 * 60 * 1000;
     }).length,
-    linkedResources: notes.filter((note) => note.resource_id != null).length,
     updatedToday: notes.filter((note) => {
       const updatedAt = new Date(note.updated_at);
       return !Number.isNaN(updatedAt.getTime())
@@ -88,11 +86,7 @@ function Notes({
   const filteredNotes = notes.filter((note) => {
     const search = searchTerm.trim().toLowerCase();
 
-    return (
-      (note.title || "").toLowerCase().includes(search) ||
-      (note.content || "").toLowerCase().includes(search) ||
-      (note.tags || []).some((tag) => tag.toLowerCase().includes(search))
-    );
+    return (note.title || "").toLowerCase().includes(search);
   });
 
   const handleCreateNote = () => {
@@ -164,76 +158,19 @@ function Notes({
         onFavorites={onFavorites}
         onRecent={onRecent}
         onSettings={onSettings}
-        onHelpSupport={onHelpSupport}
         onSemanticSearch={onSemanticSearch}
         onLogout={onLogout}
       />
 
       {/* ================= MAIN CONTENT ================= */}
       <main className="notes-main">
-
-        {/* Header */}
-        <header className="notes-header">
-
-          <div className="notes-header-search">
-
-            <span>
-              ⌕
-            </span>
-
-            <input
-              type="text"
-              placeholder="Search your saved knowledge..."
-            />
-
-          </div>
-
-
-          <div className="notes-header-actions">
-
-            <Notifications
-              onSavedResources={onSavedResources}
-              onCollections={onCollections}
-              onTags={onTags}
-            />
-
-            <ThemeToggle />
-
-            <div className="notes-header-divider"></div>
-
-            <button
-              aria-label="Open profile settings for Monika"
-              className="notes-header-profile profile-settings-trigger"
-              onClick={onSettings}
-              type="button"
-            >
-
-              <div className="notes-profile-avatar small">
-                M
-              </div>
-
-              <div>
-
-                <strong>
-                  Monika
-                </strong>
-
-                <span>
-                  My Account
-                </span>
-
-              </div>
-
-              <span className="notes-profile-arrow">
-                ⌄
-              </span>
-
-            </button>
-
-          </div>
-
-        </header>
-
+        <TopBar
+          onSavedResources={onSavedResources}
+          onCollections={onCollections}
+          onTags={onTags}
+          onHelpSupport={onHelpSupport}
+          onSettings={onSettings}
+        />
 
         {/* ================= PAGE CONTENT ================= */}
         <section className="notes-content">
@@ -305,23 +242,6 @@ function Notes({
 
             <div className="notes-stat-card">
 
-              <div className="notes-stat-icon green">
-                🏷
-              </div>
-
-              <div>
-                <strong>{noteStats.linkedResources}</strong>
-
-                <span>
-                  Linked Resources
-                </span>
-              </div>
-
-            </div>
-
-
-            <div className="notes-stat-card">
-
               <div className="notes-stat-icon orange">
                 ⭐
               </div>
@@ -350,25 +270,11 @@ function Notes({
 
   <input
     type="text"
-    placeholder="Search notes..."
+    placeholder="Search notes by title..."
     value={searchTerm}
     onChange={(e) => setSearchTerm(e.target.value)}
   />
 </div>
-            <div className="notes-toolbar-actions">
-
-              <button className="notes-filter-btn">
-                ☰
-                Filter
-              </button>
-
-              <button className="notes-sort-btn">
-                Latest
-                <span>⌄</span>
-              </button>
-
-            </div>
-
           </div>
 
 
@@ -579,6 +485,7 @@ function Notes({
             </h2>
             <label htmlFor="note-title">Title</label>
             <input
+              autoFocus
               id="note-title"
               maxLength={200}
               onChange={(event) => setNoteEditor({ ...noteEditor, title: event.target.value })}
@@ -587,11 +494,10 @@ function Notes({
             />
             <label htmlFor="note-content">Note</label>
             <textarea
-              autoFocus
               id="note-content"
               onChange={(event) => setNoteEditor({ ...noteEditor, content: event.target.value })}
               required
-              rows={8}
+              rows={7}
               value={noteEditor.content}
             />
             <div className="note-editor-actions">

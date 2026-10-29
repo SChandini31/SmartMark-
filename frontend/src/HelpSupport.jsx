@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./HelpSupport.css";
 import Sidebar from "./Sidebar";
+import TopBar from "./TopBar";
 
 const helpTopics = [
   {
@@ -16,7 +17,7 @@ const helpTopics = [
   {
     question: "Where can I find my notes?",
     answer:
-      "Choose Notes in the sidebar. Use the search field to find notes by title, text, or tag.",
+      "Choose Notes in the sidebar. Use the search field to find notes by title.",
   },
   {
     question: "How do I update my account details?",
@@ -61,11 +62,18 @@ function HelpSupport({
         onSemanticSearch={onSemanticSearch}
         onRecent={onRecent}
         onSettings={onSettings}
-        onHelpSupport={onHelpSupport}
         onLogout={onLogout}
       />
 
       <main className="help-support-main">
+        <TopBar
+          onSavedResources={onSavedResources}
+          onCollections={onCollections}
+          onTags={onTags}
+          onHelpSupport={onHelpSupport}
+          onSettings={onSettings}
+        />
+
         <header className="help-page-heading">
           <div>
             <h1>Help &amp; Support</h1>
@@ -91,42 +99,44 @@ function HelpSupport({
           </div>
         </header>
 
-        <section
-          className="help-section"
-          aria-labelledby="help-faq-heading"
-        >
-          <div className="help-section-heading">
-            <div>
-              <h2 id="help-faq-heading">
-                Frequently Asked Questions
-              </h2>
-              <p>Quick answers about your knowledge hub.</p>
+        <div className="help-content-grid">
+          <section
+            className="help-section"
+            aria-labelledby="help-faq-heading"
+          >
+            <div className="help-section-heading">
+              <div>
+                <h2 id="help-faq-heading">
+                  Frequently Asked Questions
+                </h2>
+                <p>Quick answers about your knowledge hub.</p>
+              </div>
+
+              <span>
+                {filteredTopics.length}{" "}
+                {filteredTopics.length === 1 ? "topic" : "topics"}
+              </span>
             </div>
 
-            <span>
-              {filteredTopics.length}{" "}
-              {filteredTopics.length === 1 ? "topic" : "topics"}
-            </span>
-          </div>
-
-          <div className="help-faq-list">
-            {filteredTopics.length > 0 ? (
-              filteredTopics.map((topic) => (
-                <details
-                  className="help-faq-item"
-                  key={topic.question}
-                >
-                  <summary>{topic.question}</summary>
-                  <p>{topic.answer}</p>
-                </details>
-              ))
-            ) : (
-              <p className="help-empty">
-                No help topics match that search.
-              </p>
-            )}
-          </div>
-        </section>
+            <div className="help-faq-list">
+              {filteredTopics.length > 0 ? (
+                filteredTopics.map((topic) => (
+                  <details
+                    className="help-faq-item"
+                    key={topic.question}
+                  >
+                    <summary>{topic.question}</summary>
+                    <p>{topic.answer}</p>
+                  </details>
+                ))
+              ) : (
+                <p className="help-empty">
+                  No help topics match that search.
+                </p>
+              )}
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );

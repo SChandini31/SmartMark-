@@ -780,7 +780,6 @@ button {
   margin: 0;
 }
 
-
 /* =========================================================
    WELCOME SECTION
    ========================================================= */
@@ -2037,6 +2036,10 @@ button {
   margin: 0;
 }
 
+.dashboard-redesign .welcome-section > div:first-child {
+  text-align: left;
+}
+
 .dashboard-redesign .welcome-label {
   margin-bottom: 7px;
 
@@ -2134,19 +2137,9 @@ button {
   display: grid;
 
   grid-template-columns:
-    repeat(6, minmax(0, 1fr));
+    repeat(5, minmax(0, 1fr));
 
-  overflow: hidden;
-
-  border:
-    1px solid rgba(102, 105, 160, 0.14);
-
-  border-radius: 13px;
-
-  background: #fff;
-
-  box-shadow:
-    0 7px 20px rgba(40, 39, 91, 0.035);
+  gap: 12px;
 }
 
 .knowledge-metric {
@@ -2158,28 +2151,40 @@ button {
 
   gap: 11px;
 
-  padding: 17px 14px;
+  min-height: 78px;
 
-  border: 0;
+  padding: 14px;
 
-  border-right:
-    1px solid rgba(102, 105, 160, 0.12);
+  border:
+    1px solid rgba(102, 105, 160, 0.14);
 
-  background: transparent;
+  border-radius: 13px;
+
+  background: #fff;
 
   color: #282842;
+
+  box-shadow:
+    0 7px 20px rgba(40, 39, 91, 0.035);
 
   text-align: left;
 
   transition:
+    border-color 0.18s ease,
     background 0.18s ease,
+    box-shadow 0.18s ease,
     transform 0.18s ease;
 }
 
 .knowledge-metric:hover {
+  border-color: rgba(100, 91, 214, 0.3);
+
   background: #faf9ff;
 
-  transform: translateY(-1px);
+  box-shadow:
+    0 12px 26px rgba(53, 48, 123, 0.09);
+
+  transform: translateY(-2px);
 }
 
 
@@ -2218,17 +2223,6 @@ button {
   background: var(--sm-pink-gradient);
 
   color: #c45382;
-}
-
-.knowledge-metric:nth-child(6)
-.knowledge-metric-icon {
-  background: var(--sm-cyan-gradient);
-
-  color: #258ba7;
-}
-
-.knowledge-metric:last-child {
-  border-right: 0;
 }
 
 .knowledge-metric-icon {
@@ -2933,6 +2927,8 @@ button {
   flex: 1;
 
   gap: 5px;
+
+  text-align: left;
 }
 
 .recently-saved-title {
@@ -2970,11 +2966,42 @@ button {
 }
 
 .recently-saved-favorite {
+  display: grid;
+
+  width: 34px;
+  height: 34px;
+
   flex: 0 0 auto;
+
+  place-items: center;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: transparent;
 
   color: #a6a7b5;
 
   font-size: 20px;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.recently-saved-favorite:hover:not(:disabled) {
+  background: rgba(94, 88, 219, 0.09);
+
+  color: #5b53ba;
+}
+
+.recently-saved-favorite:disabled {
+  cursor: wait;
+
+  opacity: 0.65;
 }
 
 .recently-saved-favorite.is-favorite {
@@ -3209,15 +3236,6 @@ button {
   .knowledge-metrics {
     grid-template-columns:
       repeat(3, minmax(0, 1fr));
-  }
-
-  .knowledge-metric:nth-child(3) {
-    border-right: 0;
-  }
-
-  .knowledge-metric:nth-child(n + 4) {
-    border-top:
-      1px solid rgba(102, 105, 160, 0.12);
   }
 
   .dashboard-insights-grid {
@@ -3584,19 +3602,7 @@ button {
   .knowledge-metric:nth-child(3) {
     min-height: 68px;
 
-    border-right:
-      1px solid rgba(102, 105, 160, 0.12);
-
     padding: 11px 9px;
-  }
-
-  .knowledge-metric:nth-child(even) {
-    border-right: 0;
-  }
-
-  .knowledge-metric:nth-child(n + 3) {
-    border-top:
-      1px solid rgba(102, 105, 160, 0.12);
   }
 
   .knowledge-metric-icon {
@@ -4077,7 +4083,6 @@ button {
     font-size: 12px;
   }
 }
-```css
 /* =========================================
    SmartMark Chrome Extension promotion
 ========================================= */
@@ -4665,7 +4670,6 @@ button {
   padding: 0 12px;
   margin: 0;
 }
-```css
 .welcome-action-buttons .welcome-install-btn {
   min-height: 46px;
   padding: 12px 18px;

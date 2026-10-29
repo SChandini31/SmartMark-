@@ -11,7 +11,7 @@
   ],
   "host_permissions": [
     "http://localhost:5173/*",
-    "https://guitar-except-divorce-mem.trycloudflare.com/*"
+    "http://127.0.0.1:8000/*"
   ],
   "action": {
     "default_popup": "popup.html"
