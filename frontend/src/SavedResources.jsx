@@ -440,7 +440,6 @@ function SavedResources({
     setCollectionAssignmentLoadingByResourceId,
   ] = useState({});
 
-  const checkedAutoCollectionSuggestionIdsRef = useRef(new Set());
   const collectionSuggestionRequestsRef = useRef(new Map());
   const bulkSuggestionActionRef = useRef(false);
   const bulkCollectionCreationRef = useRef(false);
@@ -1514,8 +1513,9 @@ result = {
         );
       } else {
         setResources((current) => [savedResource, ...current]);
-        void checkAutomaticCollectionSuggestions(returnedResource);
       }
+
+      void checkAutomaticCollectionSuggestions(returnedResource);
 
       resetForm();
       setIsCreateOpen(false);
@@ -2159,7 +2159,8 @@ result = {
     resource,
     suggestions,
     source,
-    recommendation
+    recommendation,
+    error = ""
   ) => {
     setCollectionSuggestionSelectedId(
       suggestions.length ? String(suggestions[0].collection_id) : ""
@@ -2170,19 +2171,23 @@ result = {
       recommendNewCollection: recommendation.recommendNewCollection,
       suggestedCollectionName: recommendation.suggestedCollectionName,
       isLoading: false,
-      error: "",
+      error,
       source,
     });
   };
 
   const checkAutomaticCollectionSuggestions = async (resource) => {
     const resourceId = getResourceId(resource, resource);
-    if (resourceId == null) return;
-
-    const requestKey = String(resourceId);
-    if (checkedAutoCollectionSuggestionIdsRef.current.has(requestKey)) return;
-
-    checkedAutoCollectionSuggestionIdsRef.current.add(requestKey);
+    if (resourceId == null) {
+      openCollectionSuggestionModal(
+        resource,
+        [],
+        "auto",
+        { recommendNewCollection: false, suggestedCollectionName: "" },
+        "Unable to load collection suggestions for this resource."
+      );
+      return;
+    }
 
     try {
       const response = await fetchCollectionSuggestions(resourceId);
@@ -2190,11 +2195,16 @@ result = {
         response.suggestions
       );
 
-      if (!meaningful.length && !response.recommendNewCollection) return;
-
       openCollectionSuggestionModal(resource, meaningful, "auto", response);
     } catch (error) {
       console.warn("SmartMark collection suggestion failed:", error);
+      openCollectionSuggestionModal(
+        resource,
+        [],
+        "auto",
+        { recommendNewCollection: false, suggestedCollectionName: "" },
+        error.message || "Unable to load collection suggestions."
+      );
     }
   };
 
@@ -3382,9 +3392,9 @@ result = {
                 )}
 
                 {collectionSuggestionModal.source !== "bulk" &&
-                  errorMessage && (
+                  (collectionSuggestionModal.error || errorMessage) && (
                   <p className="resource-api-error" role="alert">
-                    {errorMessage}
+                    {collectionSuggestionModal.error || errorMessage}
                   </p>
                   )}
 
